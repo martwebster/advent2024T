@@ -1,22 +1,16 @@
-# Advent of code Template
+# Advent of code 2024
 
-# Usage
-This template can be used to kick-start you journey in advent of code. It is a simple project set up to use Tyepscript, viTest and node. The template provide:
-
-- Folder structure per day
-- Utility to load data from a file
-- Typescript extensions for String, Arrays for the type of processing required in advent of code.
-
-# Pre-requisites
-The following software is requrired:
-- pnpm
-- node
-- git
-- vscode (with vitest extension)
-
-# Installation
-To get started:
+## Day 1
+That is a nice gentle introduction. Add a couple of new functions to Array, to make sorting easier:
 ```
-pnpm i
+        sortAscending(): Array<T>;
+        sortDescending(): Array<T>;
 ```
-
+I've also added a new function to a String to convert the line into a number[]. I assume this will come in handy in the following days.
+```
+        /**
+         * Convert string into a number array
+         * @param delim defaults to " ", but can passed through
+         */
+        toNumbers(delim?: string): number[];
+```
