@@ -23,6 +23,11 @@ declare global {
         substringBeforeLast(val: string): string;
         substringBetweenLast(val1: string, val2: string): string;
         isDigit(): boolean;
+        /**
+         * Convert string into a number array
+         * @param delim defaults to " ", but can passed through
+         */
+        toNumbers(delim?: string): number[];
     }
 }
 
@@ -93,6 +98,11 @@ export const apply = () => {
     };
     String.prototype.isDigit = function () {
         return "0123456789".includes(this.charAt(0))
+    };
+    String.prototype.toNumbers = function (delim: string = " ") {
+        return this.split(delim)
+            .filter(it => it.length > 0)
+            .map(it => Number(it));
     }
 }
 
