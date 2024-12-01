@@ -23,7 +23,6 @@ describe('day 1 - part1', () => {
     })
 
     test('sample', () => {
-
         expect(extract(sampleData[0])).toStrictEqual([3, 4]);
         expect(pairs(sampleData)).toBe(11);
     })
@@ -32,7 +31,6 @@ describe('day 1 - part1', () => {
         const data = readTestData('./src/day1/day1.txt');
         expect(pairs(data)).toBe(2057374);
     })
-
 
     test('sample - part 2', () => {
         expect(similarity(sampleData)).toBe(31);

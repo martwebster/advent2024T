@@ -6,10 +6,11 @@ export const extract = (line: String): number[] => {
     return line.split("   ").map(it => Number(it));
 }
 
+// part 1
 export const pairs = (lines: String[]): number => {
 
-    const list1 = lines.map(line => extract(line)[0]).sort((a, b) => a - b)
-    const list2 = lines.map(line => extract(line)[1]).sort((a, b) => a - b)
+    const list1 = lines.map(line => extract(line)[0]).sortAscending();
+    const list2 = lines.map(line => extract(line)[1]).sortAscending();
 
     var total = 0;
 
@@ -19,6 +20,7 @@ export const pairs = (lines: String[]): number => {
     return total;
 }
 
+// part 2
 export const similarity = (lines: String[]): number => {
 
     const list1 = lines.map(line => extract(line)[0])
@@ -28,7 +30,7 @@ export const similarity = (lines: String[]): number => {
 
     for (let index = 0; index < list1.length; index++) {
         const value = list1[index];
-        var count = list2.filter(it => it == value);
+        var count = list2.filter(it => it === value);
         total += value * count.length;
     }
     return total;

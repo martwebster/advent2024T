@@ -11,6 +11,8 @@ declare global {
         max(): number;
         maxOf(attribute: (item: T) => number): number;
         includesObject(obj: any): boolean;
+        sortAscending(): Array<T>;
+        sortDescending(): Array<T>;
     }
 
     interface String {
@@ -62,6 +64,12 @@ export const apply = () => {
     };
     Array.prototype.includesObject = function (obj: any) {
         return this.map(item => JSON.stringify(item)).includes(JSON.stringify(obj))
+    };
+    Array.prototype.sortAscending = function () {
+        return this.sort((a, b) => a - b)
+    };
+    Array.prototype.sortDescending = function () {
+        return this.sort((a, b) => b - a)
     };
 
 
