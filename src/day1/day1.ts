@@ -6,7 +6,9 @@ export const pairs = (lines: String[]): number => {
     const list1 = numbers.map(it => it[0]).sortAscending();
     const list2 = numbers.map(it => it[1]).sortAscending();
 
-    return list1.map((value, index) => Math.abs(value - list2[index])).sum();
+    return list1
+        .map((value, index) => Math.abs(value - list2[index]))
+        .sum();
 }
 
 // part 2
