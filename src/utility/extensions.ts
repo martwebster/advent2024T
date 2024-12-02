@@ -1,18 +1,17 @@
-import { readFileSync } from "fs"
-
 declare global {
     interface Array<T> {
-        last(): T | undefined;
-        first(): T | undefined;
-        sum(): number;
-        sumOf(attribute: (item: T) => number): number;
-        min(): number;
-        minOf(attribute: (item: T) => number): number;
-        max(): number;
-        maxOf(attribute: (item: T) => number): number;
-        includesObject(obj: any): boolean;
-        sortAscending(): Array<T>;
-        sortDescending(): Array<T>;
+        last(): T | undefined
+        first(): T | undefined
+        sum(): number
+        sumOf(attribute: (item: T) => number): number
+        min(): number
+        minOf(attribute: (item: T) => number): number
+        max(): number
+        maxOf(attribute: (item: T) => number): number
+        includesObject(obj: unknown): boolean
+        sortAscending(): Array<T>
+        sortDescending(): Array<T>
+        removeAtIndex(index: number): Array<T>
     }
 
     interface String {
@@ -47,27 +46,27 @@ export const apply = () => {
     Array.prototype.sum = function () {
         return this.reduce((sum, current) => sum + current, 0);
     };
-    Array.prototype.sumOf = function (attribute: (item: any) => number) {
+    Array.prototype.sumOf = function (attribute: (item: unknown) => number) {
         return this.map(attribute).sum();
     };
 
     Array.prototype.min = function () {
         return Math.min(...this);
     };
-    Array.prototype.minOf = function (attribute: (item: any) => number) {
+    Array.prototype.minOf = function (attribute: (item: unknown) => number) {
         return this.map(attribute).min();
     };
     Array.prototype.max = function () {
         return Math.max(...this);
     };
-    Array.prototype.maxOf = function (attribute: (item: any) => number) {
+    Array.prototype.maxOf = function (attribute: (item: unknown) => number) {
         return this.map(attribute).max();
     };
 
-    Array.prototype.maxOf = function (attribute: (item: any) => number) {
+    Array.prototype.maxOf = function (attribute: (item: unknown) => number) {
         return this.map(attribute).max();
     };
-    Array.prototype.includesObject = function (obj: any) {
+    Array.prototype.includesObject = function (obj: unknown) {
         return this.map(item => JSON.stringify(item)).includes(JSON.stringify(obj))
     };
     Array.prototype.sortAscending = function () {
@@ -76,7 +75,11 @@ export const apply = () => {
     Array.prototype.sortDescending = function () {
         return this.sort((a, b) => b - a)
     };
+    Array.prototype.removeAtIndex = function (index: number) {
+        return [...this.slice(0, index), ...this.slice(index + 1)]
+    }
 
+    // String
 
     String.prototype.substringAfter = function (val: string) {
         return this.substring(this.indexOf(val) + val.length)

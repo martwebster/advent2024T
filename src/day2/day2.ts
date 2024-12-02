@@ -1,54 +1,35 @@
+// part 1
+export const isReportSafe = (report: number[]): boolean => {
+    const increasing = report[1] > report[0]
 
-export const isSafe = (numbers: number[]): boolean => {
-    var up = true;
-    if (numbers[0] > numbers[1]) {
-        up = false;
-    } else {
-        up = true;
-    }
-    if (numbers.length == 1) {
-        return false;
-    }
+    for (let index = 0; index < report.length - 1; index++) {
+        const difference = report[index + 1] - report[index]
 
-    for (let index = 0; index < numbers.length - 1; index++) {
-        const current = numbers[index];
-        const next = numbers[index + 1];
-        if (current === next) {
-            return false;
+        if (increasing && (difference > 3 || difference <= 0)) {
+            return false
         }
-
-        var value = next - current;
-
-        if (up) {
-            if (value > 3 || value <= 0) {
-                return false
-            }
-        } else {
-            if (value < -3 || value >= 0) {
-                return false
-            }
+        if (!increasing && (difference < -3 || difference >= 0)) {
+            return false
         }
     }
-    return true;
+    return true
 }
 
-// part 1
-export const safeCount = (lines: string[]): number => {
-    return lines.map(it => it.toNumbers()).filter(isSafe).length;
+export const countSafeReports = (reports: string[]): number => {
+    return reports.map(it => it.toNumbers()).filter(isReportSafe).length
 }
 
 // part 2
-export const isSafe2 = (numbers: number[]): boolean => {
-
-    for (let index = 0; index < numbers.length; index++) {
-        var newNumbers = [...numbers.slice(0, index), ...numbers.slice(index + 1)]
-        if (isSafe(newNumbers)) {
-            return true;
+export const isReportSafeWithDampener = (report: number[]): boolean => {
+    // remove a level, and determine if it is safe  
+    for (let index = 0; index < report.length; index++) {
+        if (isReportSafe(report.removeAtIndex(index))) {
+            return true
         }
     }
-    return false;
+    return false
 }
 
-export const safeCount2 = (lines: string[]): number => {
-    return lines.map(it => it.toNumbers()).filter(isSafe2).length;
+export const countSafeReportsWithDampener = (lines: string[]): number => {
+    return lines.map(it => it.toNumbers()).filter(isReportSafeWithDampener).length
 }

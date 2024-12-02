@@ -2,11 +2,11 @@
 import * as extensions from '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { isSafe, isSafe2, safeCount, safeCount2 } from './day2';
+import { isReportSafe, isReportSafeWithDampener, countSafeReports, countSafeReportsWithDampener } from './day2';
 
 extensions.apply();
 
-describe('day 1 - part1', () => {
+describe('day 2', () => {
 
     const sampleData = [
         "7 6 4 2 1",
@@ -18,37 +18,34 @@ describe('day 1 - part1', () => {
     ]
 
     test('sample', () => {
-        expect(sampleData[0].toNumbers()).toStrictEqual([7, 6, 4, 2, 1]);
-        expect(isSafe(sampleData[0].toNumbers())).toBe(true);
-        expect(isSafe(sampleData[1].toNumbers())).toBe(false);
-        expect(isSafe(sampleData[2].toNumbers())).toBe(false);
-        expect(isSafe(sampleData[3].toNumbers())).toBe(false);
-        expect(isSafe(sampleData[4].toNumbers())).toBe(false);
-        expect(isSafe(sampleData[5].toNumbers())).toBe(true);
-        expect(safeCount(sampleData)).toBe(2);
+        expect(isReportSafe(sampleData[0].toNumbers())).toBe(true);
+        expect(isReportSafe(sampleData[1].toNumbers())).toBe(false);
+        expect(isReportSafe(sampleData[2].toNumbers())).toBe(false);
+        expect(isReportSafe(sampleData[3].toNumbers())).toBe(false);
+        expect(isReportSafe(sampleData[4].toNumbers())).toBe(false);
+        expect(isReportSafe(sampleData[5].toNumbers())).toBe(true);
+        expect(countSafeReports(sampleData)).toBe(2);
     })
 
     test('part1', () => {
         const data = readTestData('./src/day2/input.txt');
-        // 346 too high // 345
-        expect(safeCount(data)).toBe(326);
+        expect(countSafeReports(data)).toBe(326);
 
     })
 
-    test('sample 2', () => {
+    test('sample - Part 2', () => {
         expect(sampleData[0].toNumbers()).toStrictEqual([7, 6, 4, 2, 1]);
-        expect(isSafe2(sampleData[0].toNumbers())).toBe(true);
-        expect(isSafe2(sampleData[1].toNumbers())).toBe(false);
-        expect(isSafe2(sampleData[2].toNumbers())).toBe(false);
-        expect(isSafe2(sampleData[3].toNumbers())).toBe(true);
-        expect(isSafe2(sampleData[4].toNumbers())).toBe(true);
-        expect(isSafe2(sampleData[5].toNumbers())).toBe(true);
-        expect(safeCount2(sampleData)).toBe(4);
+        expect(isReportSafeWithDampener(sampleData[0].toNumbers())).toBe(true);
+        expect(isReportSafeWithDampener(sampleData[1].toNumbers())).toBe(false);
+        expect(isReportSafeWithDampener(sampleData[2].toNumbers())).toBe(false);
+        expect(isReportSafeWithDampener(sampleData[3].toNumbers())).toBe(true);
+        expect(isReportSafeWithDampener(sampleData[4].toNumbers())).toBe(true);
+        expect(isReportSafeWithDampener(sampleData[5].toNumbers())).toBe(true);
+        expect(countSafeReportsWithDampener(sampleData)).toBe(4);
     })
 
     test('part2', () => {
         const data = readTestData('./src/day2/input.txt');
-        expect(safeCount2(data)).toBe(381);
-
+        expect(countSafeReportsWithDampener(data)).toBe(381);
     })
 })
