@@ -3,19 +3,16 @@ const buildMul = (instruction: string): number[] =>{
     return [ Number(instruction.substringAfter("(").substringBefore(",")), Number(instruction.substringAfter(",").substringBefore(")")) ];
 }
 
-export const extractOperations = (data: string): number[][]  => {
-    let regex = RegExp('mul\\([0-9]{1,3},[0-9]{1,3}\\)', "g")
-    
-    const matches = data.match(regex);
+export const extractMultiplications = (data: string): number[][]  => {
+    const matches = data.match(RegExp('mul\\([0-9]{1,3},[0-9]{1,3}\\)', "g"))
     if (matches === null){
         return [];
     }
-    const numbers = matches.map( buildMul)
-    return numbers;
+    return matches.map(buildMul);
 }
 
 export const sumLine = (data: string): number => {
-    return extractOperations(data).map (it => it[0] * it[1]).sum();
+    return extractMultiplications(data).map (it => it[0] * it[1]).sum();
 }
 
 // part 2
@@ -24,9 +21,7 @@ export const extractOperationsWithInstuctions = (data: string): number[][]  => {
     const doIns = 'do\\(\\)'
     const dontIns = 'don\'t\\(\\)'
     
-    let regex = RegExp(`(${findMul}|${doIns}|${dontIns})`, "g")
-    
-    const matches = data.match(regex);
+    const matches = data.match(RegExp(`(${findMul}|${doIns}|${dontIns})`, "g"));
     if (matches === null){
         return [];
     }

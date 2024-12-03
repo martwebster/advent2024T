@@ -2,7 +2,7 @@
 import * as extensions from '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { extractOperations, sumLine, sumLinesWithInstructions } from './day3';
+import { extractMultiplications, sumLine, sumLinesWithInstructions } from './day3';
 
 extensions.apply();
 
