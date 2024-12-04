@@ -10,29 +10,29 @@ export const moveUpRight = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y-1}
 export const moveDownLeft = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y+1}}
 export const moveDownRight = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y+1}}
 
-export const checkForWord = (rows: String[], pos: Pos, word: String, move: Movement) : boolean=>{
-    var currentPos = pos;
+export const checkForWord = (grid: String[], startPos: Pos, word: String, move: Movement) : boolean=>{
+    var pos = startPos;
     for (let index = 0; index < word.length; index++) {
-        const letter = rows[currentPos.y]?.charAt(currentPos.x)
+        const letter = grid[pos.y]?.charAt(pos.x)
         if (letter!== word.charAt(index)){
             return false;
         }
-        currentPos = move(currentPos);
+        pos = move(pos);
     }
     return true;
 }
 
 
-export const countPresent = (rows: String[], pos: Pos, word: String = "XMAS"): number => {
+export const countPresent = (grid: String[], pos: Pos, word: String = "XMAS"): number => {
     var count = 0;
-    if (checkForWord(rows, pos, word, moveDown)) count++
-    if (checkForWord(rows, pos, word, moveDownLeft)) count++
-    if (checkForWord(rows, pos, word, moveDownRight)) count++
-    if (checkForWord(rows, pos, word, moveLeft)) count++
-    if (checkForWord(rows, pos, word, moveRight)) count++
-    if (checkForWord(rows, pos, word, moveUp)) count++
-    if (checkForWord(rows, pos, word, moveUpLeft)) count++
-    if (checkForWord(rows, pos, word, moveUpRight)) count++
+    if (checkForWord(grid, pos, word, moveDown)) count++
+    if (checkForWord(grid, pos, word, moveDownLeft)) count++
+    if (checkForWord(grid, pos, word, moveDownRight)) count++
+    if (checkForWord(grid, pos, word, moveLeft)) count++
+    if (checkForWord(grid, pos, word, moveRight)) count++
+    if (checkForWord(grid, pos, word, moveUp)) count++
+    if (checkForWord(grid, pos, word, moveUpLeft)) count++
+    if (checkForWord(grid, pos, word, moveUpRight)) count++
     return count;
 }
 
@@ -50,7 +50,6 @@ export const countXmas =  (rows: String[]): number => {
     return total;
 }
 
-// Part 2
 export const countX = (rows: String[], xPos: number, yPos: number, word: string): number => {
     var count = 0;
     if (checkForWord(rows, { x: xPos-1, y: yPos-1 }, word, moveDownRight)) count++
@@ -63,6 +62,7 @@ export const countX = (rows: String[], xPos: number, yPos: number, word: string)
     return 0;
 }
 
+// Part 2
 export const countMasX =  (rows: String[]): number => {
     var total = 0;
     for (let yPos = 0; yPos < rows.length; yPos++) {
