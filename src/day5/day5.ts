@@ -50,12 +50,12 @@ export const countXmas =  (rows: String[]): number => {
     return total;
 }
 
-export const countX = (rows: String[], xPos: number, yPos: number, word: string): number => {
+export const countX = (rows: String[], pos: Pos, word: string): number => {
     var count = 0;
-    if (checkForWord(rows, { x: xPos-1, y: yPos-1 }, word, moveDownRight)) count++
-    if (checkForWord(rows, { x: xPos+1, y: yPos-1 }, word, moveDownLeft)) count++
-    if (checkForWord(rows, { x: xPos+1, y: yPos+1 }, word, moveUpLeft)) count++
-    if (checkForWord(rows, { x: xPos-1, y: yPos+1 }, word, moveUpRight)) count++
+    if (checkForWord(rows, { x: pos.x-1, y: pos.y-1 }, word, moveDownRight)) count++
+    if (checkForWord(rows, { x: pos.x+1, y: pos.y-1 }, word, moveDownLeft)) count++
+    if (checkForWord(rows, { x: pos.x+1, y: pos.y+1 }, word, moveUpLeft)) count++
+    if (checkForWord(rows, { x: pos.x-1, y: pos.y+1 }, word, moveUpRight)) count++
     if (count===2){
         return 1;
     }
@@ -64,11 +64,12 @@ export const countX = (rows: String[], xPos: number, yPos: number, word: string)
 
 // Part 2
 export const countMasX =  (rows: String[]): number => {
-    var total = 0;
-    for (let yPos = 0; yPos < rows.length; yPos++) {
-        for (let xPos = 0; xPos < rows[0].length; xPos++) {
-            total = total + countX(rows, xPos, yPos, "MAS")
-        }
-    }
-    return total;
+    return rows.scanAll().sumOf( pos => countX(rows, pos, "MAS"))
+    // var total = 0;
+    // for (let yPos = 0; yPos < rows.length; yPos++) {
+    //     for (let xPos = 0; xPos < rows[0].length; xPos++) {
+    //         total = total + 
+    //     }
+    // }
+    // return total;
 }

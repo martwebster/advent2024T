@@ -43,7 +43,6 @@ describe('day 4', () => {
         "M.S",
         ".A.",
         "M.S"]
-        expect(countX(data, 1, 1, "MAS")).toBe(1)
         expect(countMasX(data)).toBe(1)
       })
 

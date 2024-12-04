@@ -18,6 +18,10 @@ declare global {
         sortAscending(): Array<T>
         sortDescending(): Array<T>
         removeAtIndex(index: number): Array<T>
+        /**
+         *  Generates an array of positions, one for each row, column of a grid
+         */
+        scanAll(): Array<Pos>
     }
 
     interface String {
@@ -84,6 +88,23 @@ export const apply = () => {
     Array.prototype.removeAtIndex = function (index: number) {
         return [...this.slice(0, index), ...this.slice(index + 1)]
     }
+    Array.prototype.scanAll = function() {
+        const positions : Pos[] = []
+        for (let y = 0; y < this.length; y++) {
+            if (typeof this[y] === 'string'){
+                const element = this[y] as string;
+                for (let x = 0; x < element.length; x++) {
+                    positions.push( {
+                        x,
+                        y 
+                    })   
+                }
+            }
+        }
+        return positions;
+    }
+
+
 
     // String
 
