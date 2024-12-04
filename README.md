@@ -42,4 +42,16 @@ export const extractMultiplications = (data: string): number[][]  => {
 }
 
 ```
+### Day 4
+Wordsearch. I thought this was quite easy, if you don't rush and plan accordingly. 
+
+Just repeat how you do worsearches.
+
+Added a new Interface to Global. I use this so often, to reference a position in an array.
+```
+    interface Pos { 
+        x: number;
+        y: number;
+    }
+```
 
