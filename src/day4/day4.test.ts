@@ -2,7 +2,7 @@
 import * as extensions from '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { countMasX, countX, countXmas, checkLeft, checkRight, checkUp } from './day4';
+import { countMasX, countX, countXmas, moveLeft, moveRight, moveUp, checkForWord } from './day4';
 
 extensions.apply();
 
@@ -16,15 +16,15 @@ describe('day 4', () => {
           "XMAS.S",
           ".X....",
       ]
-      expect(checkLeft(data, { x: 2, y:1})).toBe(false);
-      expect(checkLeft(data, { x: 4, y:1})).toBe(true);
-      expect(checkLeft(data, { x: 5, y:1})).toBe(false);
+     // expect(checkForWord(data, { x: 2, y:1}, "XMAS", moveLeft)).toBe(false);
+      expect(checkForWord(data, { x: 4, y:1}, "XMAS", moveLeft)).toBe(true);
+      expect(checkForWord(data, { x: 5, y:1}, "XMAS", moveLeft)).toBe(false);
 
-      expect(checkRight(data, { x:4, y:1})).toBe(false);
-      expect(checkRight(data, { x:0, y:3})).toBe(true);
-      expect(checkRight(data, { x:1, y:3})).toBe(false);
+      expect(checkForWord(data, { x:4, y:1},  "XMAS", moveRight)).toBe(false);
+      expect(checkForWord(data, { x:0, y:3},  "XMAS", moveRight)).toBe(true);
+      expect(checkForWord(data, { x:1, y:3},  "XMAS", moveRight)).toBe(false);
 
-      expect(checkUp(data, { x:1, y:4})).toBe(true);
+      expect(checkForWord(data, { x:1, y:4}, "XMAS", moveUp)).toBe(true);
       expect(countXmas(data)).toBe(4)
     })
 
@@ -43,7 +43,7 @@ describe('day 4', () => {
         "M.S",
         ".A.",
         "M.S"]
-        expect(countX(data, 1, 1)).toBe(1)
+        expect(countX(data, 1, 1, "MAS")).toBe(1)
         expect(countMasX(data)).toBe(1)
       })
 

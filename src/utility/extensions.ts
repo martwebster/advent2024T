@@ -1,4 +1,10 @@
 declare global {
+    interface Pos { 
+        x: number;
+        y: number;
+    }
+    
+
     interface Array<T> {
         last(): T | undefined
         first(): T | undefined
