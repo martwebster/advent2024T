@@ -45,13 +45,32 @@ export const extractMultiplications = (data: string): number[][]  => {
 ### Day 4
 Wordsearch. I thought this was quite easy, if you don't rush and plan accordingly. 
 
-Just repeat how you do worsearches.
+Just repeat how you do Wordsearches.
 
-Added a new Interface to Global. I use this so often, to reference a position in an array.
+Added a new Interface to Global - positions in a grid.
 ```
     interface Pos { 
         x: number;
         y: number;
     }
 ```
+Also, added a new function to an array, to generate a lost of positions for a simple grid.
+```
+    Array.prototype.scanAll = function() {
+        const positions : Pos[] = []
+        for (let y = 0; y < this.length; y++) {
+            if (typeof this[y] === 'string'){
+                const element = this[y] as string;
+                for (let x = 0; x < element.length; x++) {
+                    positions.push( {
+                        x,
+                        y 
+                    })   
+                }
+            }
+        }
+        return positions;
+    }
+```
+
 
