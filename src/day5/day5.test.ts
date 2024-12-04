@@ -19,21 +19,12 @@ describe('day 5', () => {
       expect(countXmas(data)).toBe(4)
     })
 
-    test('sample 2', () => {
-      const data = readTestData('./src/day4/input.sample.txt');
-      expect(countXmas(data)).toBe(18)
-    })
-
     test('part1', () => {
-         const data = readTestData('./src/day4/input.txt');
+         const data = readTestData('./src/day5/input.txt');
          expect(countXmas(data)).toBe(2551)
     })
 
-    test('sample part 22', () => {
-      const data = readTestData('./src/day4/input.sample.txt');
-    })
-
      test('part2', () => {
-        const data = readTestData('./src/day4/input.txt');
+        const data = readTestData('./src/day5/input.txt');
    })
 })

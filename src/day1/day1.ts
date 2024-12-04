@@ -20,5 +20,5 @@ export const similarity = (lines: string[]): number => {
 
     return list1
         .map(value => value * list2.filter(it => it === value).length)
-          .sum();
+        .sum();
 }
