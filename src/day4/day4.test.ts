@@ -2,7 +2,7 @@
 import * as extensions from '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { countMasX, countX, countXmas, isLeft, isRight, isUp } from './day4';
+import { countMasX, countX, countXmas, checkLeft, checkRight, checkUp } from './day4';
 
 extensions.apply();
 
@@ -16,15 +16,15 @@ describe('day 4', () => {
           "XMAS.S",
           ".X....",
       ]
-      expect(isLeft(data, 2, 1)).toBe(false);
-      expect(isLeft(data, 4, 1)).toBe(true);
-      expect(isLeft(data, 5, 1)).toBe(false);
+      expect(checkLeft(data, { x: 2, y:1})).toBe(false);
+      expect(checkLeft(data, { x: 4, y:1})).toBe(true);
+      expect(checkLeft(data, { x: 5, y:1})).toBe(false);
 
-      expect(isRight(data, 4, 1)).toBe(false);
-      expect(isRight(data, 0, 3)).toBe(true);
-      expect(isRight(data, 1, 3)).toBe(false);
+      expect(checkRight(data, { x:4, y:1})).toBe(false);
+      expect(checkRight(data, { x:0, y:3})).toBe(true);
+      expect(checkRight(data, { x:1, y:3})).toBe(false);
 
-      expect(isUp(data, 1, 4)).toBe(true);
+      expect(checkUp(data, { x:1, y:4})).toBe(true);
       expect(countXmas(data)).toBe(4)
     })
 

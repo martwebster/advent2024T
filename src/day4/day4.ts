@@ -1,6 +1,13 @@
 
 const XMAS = "XMAS"
 
+interface Pos { 
+    x: number;
+    y: number;
+}
+
+type Movement = (pos: Pos) => Pos;
+
 const getValue = (rows: String[], xPos: number, yPos: number) : string | undefined =>{
     if (rows[yPos] === undefined){
         return undefined;
@@ -8,116 +15,67 @@ const getValue = (rows: String[], xPos: number, yPos: number) : string | undefin
     return rows[yPos].charAt(xPos); 
 }
 
-export const isLeft = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
+const checkForWord = (rows: String[], pos: Pos, word: String, move:Movement) : boolean=>{
+    var currentPos = pos;
     for (let index = 0; index < word.length; index++) {
-        if ( getValue(rows, currentX, currentY)!== word.charAt(index)){
+        if (getValue(rows, currentPos.x, currentPos.y)!== word.charAt(index)){
             return false;
         }
-        currentX--;
+        currentPos = move(currentPos);
     }
     return true;
 }
 
-export const isRight = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentX++;
-    }
-    return true;
+export const checkLeft = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isUp = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentY--;
-    }
-    return true;
+export const checkRight = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isDown = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentY++;
-    }
-    return true;
+export const checkUp = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x, y: pos.y-1}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isUpLeft = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentX--;
-        currentY--;
-    }
-    return true;
+export const checkDown = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x, y: pos.y+1}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isUpRight = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentX++;
-        currentY--;
-    }
-    return true;
+export const checkUpLeft = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y-1}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isDownLeft = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentX--;
-        currentY++;
-    }
-    return true;
+export const checkUpRight = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y-1}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const isDownRight = (rows: String[], xPos: number, yPos: number, word: String = XMAS): boolean =>{
-    var currentX = xPos;
-    var currentY = yPos;
-    for (let index = 0; index < word.length; index++) {
-        if (getValue(rows, currentX, currentY)!== word.charAt(index)){
-            return false;
-        }
-        currentX++;
-        currentY++;
-    }
-    return true;
+export const checkDownLeft = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y+1}}
+    return checkForWord(rows, pos, word, move);
 }
 
-export const countPresent = (rows: String[], xPos: number, yPos: number): number => {
+export const checkDownRight = (rows: String[], pos: Pos, word: String = XMAS): boolean =>{
+    const move = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y+1}}
+    return checkForWord(rows, pos, word, move);
+}
+
+export const countPresent = (rows: String[], pos: Pos): number => {
     var count = 0;
-    if (isDown(rows, xPos, yPos)) count++
-    if (isDownLeft(rows, xPos, yPos)) count++
-    if (isDownRight(rows, xPos, yPos)) count++
-    if (isLeft(rows, xPos, yPos)) count++
-    if (isRight(rows, xPos, yPos)) count++
-    if (isUp(rows, xPos, yPos)) count++
-    if (isUpLeft(rows, xPos, yPos)) count++
-    if (isUpRight(rows, xPos, yPos)) count++
+    if (checkDown(rows, pos)) count++
+    if (checkDownLeft(rows, pos)) count++
+    if (checkDownRight(rows, pos)) count++
+    if (checkLeft(rows, pos)) count++
+    if (checkRight(rows, pos)) count++
+    if (checkUp(rows, pos)) count++
+    if (checkUpLeft(rows, pos)) count++
+    if (checkUpRight(rows, pos)) count++
     return count;
 }
 
@@ -125,19 +83,23 @@ export const countXmas =  (rows: String[]): number => {
     var total = 0;
     for (let yPos = 0; yPos < rows.length; yPos++) {
         for (let xPos = 0; xPos < rows[0].length; xPos++) {
-            total = total + countPresent(rows, xPos, yPos)
+            total = total + countPresent(rows, {
+                x: xPos, 
+                y: yPos
+            })
         }
     }
     return total;
 }
 
+// Part 2
 export const countX = (rows: String[], xPos: number, yPos: number): number => {
     var count = 0;
     const word = "MAS"
-    if (isDownRight(rows, xPos-1, yPos-1, word)) count++
-    if (isDownLeft(rows, xPos+1, yPos-1, word)) count++
-    if (isUpLeft(rows, xPos+1, yPos+1, word)) count++
-    if (isUpRight(rows, xPos-1, yPos+1, word)) count++
+    if (checkDownRight(rows, { x: xPos-1, y: yPos-1}, word)) count++
+    if (checkDownLeft(rows, { x: xPos+1, y: yPos-1}, word)) count++
+    if (checkUpLeft(rows, { x: xPos+1, y: yPos+1 }, word)) count++
+    if (checkUpRight(rows,{ x: xPos-1, y: yPos+1 }, word)) count++
     if (count===2){
         return 1;
     }
