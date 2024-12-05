@@ -1,10 +1,8 @@
 
-import * as extensions from '../utility/extensions';
+import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
 import { parseRules, parseAllPages, isRuleValid, isValidUpdate, getMiddle, addPages, reOrderUpdate, addInvalidPages } from './day5';
-
-extensions.apply();
 
 describe('day 5', () => {
 

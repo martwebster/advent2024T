@@ -1,10 +1,8 @@
 
-import * as extensions from '../utility/extensions';
+import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
 import { isReportSafe, isReportSafeWithDampener, countSafeReports, countSafeReportsWithDampener } from './day2';
-
-extensions.apply();
 
 describe('day 2', () => {
 

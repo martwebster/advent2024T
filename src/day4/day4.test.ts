@@ -1,10 +1,9 @@
 
-import * as extensions from '../utility/extensions';
+import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
 import { countMasX, countX, countXmas, moveLeft, moveRight, moveUp, checkForWord } from './day4';
 
-extensions.apply();
 
 describe('day 4', () => {
 
