@@ -1,75 +1,72 @@
-type Movement = (pos: Pos) => Pos;
+interface Rule {
+    first: number,
+    second: number;
+}
 
-export const moveLeft = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y}}
-export const moveRight = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y}}
-export const moveUp = (pos: Pos): Pos => { return { x: pos.x, y: pos.y-1}}
-export const moveDown = (pos: Pos): Pos => { return { x: pos.x, y: pos.y+1}}
+export const parseRules = (data: string[]): Rule[] =>{
+    return data.map (it => { return { 
+        first: Number(it.substringBefore("|")), 
+        second: Number(it.substringAfter("|")) 
+    }})
+}
 
-export const moveUpLeft = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y-1}}
-export const moveUpRight = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y-1}}
-export const moveDownLeft = (pos: Pos): Pos => { return { x: pos.x-1, y: pos.y+1}}
-export const moveDownRight = (pos: Pos): Pos => { return { x: pos.x+1, y: pos.y+1}}
+export const parsePages = (data: string): number[] =>{
+    return data.split(",").map (it => Number(it));
+}
 
-export const checkForWord = (grid: String[], startPos: Pos, word: String, move: Movement) : boolean=>{
-    var pos = startPos;
-    for (let index = 0; index < word.length; index++) {
-        const letter = grid[pos.y]?.charAt(pos.x)
-        if (letter!== word.charAt(index)){
-            return false;
-        }
-        pos = move(pos);
+export const parseAllPages = (data: string[]): number[][] =>{
+    return data.map (parsePages);
+}
+
+export const isRuleValid = ( rule: Rule, pages: number[]): boolean =>{
+    const pos1 = pages.indexOf(rule.first);
+    const pos2 = pages.indexOf(rule.second);
+
+    if (pos1 === -1 || pos2 === -1){
+        return true;
+    }
+    if (pos1>= pos2){
+        return false;
     }
     return true;
 }
 
-
-export const countPresent = (grid: String[], pos: Pos, word: String = "XMAS"): number => {
-    var count = 0;
-    if (checkForWord(grid, pos, word, moveDown)) count++
-    if (checkForWord(grid, pos, word, moveDownLeft)) count++
-    if (checkForWord(grid, pos, word, moveDownRight)) count++
-    if (checkForWord(grid, pos, word, moveLeft)) count++
-    if (checkForWord(grid, pos, word, moveRight)) count++
-    if (checkForWord(grid, pos, word, moveUp)) count++
-    if (checkForWord(grid, pos, word, moveUpLeft)) count++
-    if (checkForWord(grid, pos, word, moveUpRight)) count++
-    return count;
+export const isValidUpdate = (pages: number[], rules : Rule[]): boolean => {
+    const passes = rules.filter (rule => isRuleValid(rule, pages));
+    return passes.length === rules.length;
 }
 
-// part 1
-export const countXmas =  (rows: String[]): number => {
-    var total = 0;
-    for (let yPos = 0; yPos < rows.length; yPos++) {
-        for (let xPos = 0; xPos < rows[0].length; xPos++) {
-            total = total + countPresent(rows, {
-                x: xPos, 
-                y: yPos
-            })
-        }
-    }
-    return total;
+export const getMiddle = (pages: number[]): number =>{
+    const pos =  Math.ceil(pages.length/2)
+    return pages[pos-1];
 }
 
-export const countX = (rows: String[], pos: Pos, word: string): number => {
-    var count = 0;
-    if (checkForWord(rows, { x: pos.x-1, y: pos.y-1 }, word, moveDownRight)) count++
-    if (checkForWord(rows, { x: pos.x+1, y: pos.y-1 }, word, moveDownLeft)) count++
-    if (checkForWord(rows, { x: pos.x+1, y: pos.y+1 }, word, moveUpLeft)) count++
-    if (checkForWord(rows, { x: pos.x-1, y: pos.y+1 }, word, moveUpRight)) count++
-    if (count===2){
-        return 1;
-    }
-    return 0;
+export const addPages = (rules: Rule[], updates: number[][]) : number => {
+    return updates
+        .filter(page => isValidUpdate(page, rules))
+        .sumOf(getMiddle);
 }
 
-// Part 2
-export const countMasX =  (rows: String[]): number => {
-    return rows.scanAll().sumOf( pos => countX(rows, pos, "MAS"))
-    // var total = 0;
-    // for (let yPos = 0; yPos < rows.length; yPos++) {
-    //     for (let xPos = 0; xPos < rows[0].length; xPos++) {
-    //         total = total + 
-    //     }
-    // }
-    // return total;
+// part 2
+export const reOrderUpdate = (update: number[], rules: Rule[]): number[] =>{
+    const result = [...update]
+    var invalidRule = rules.find (it => !isRuleValid(it, update))
+    while (invalidRule){   
+        // add to an array.  swap Values
+        const num1 = invalidRule.first
+        const num2 = invalidRule.second
+    
+        result[result.indexOf(num1)] = num2;
+        result[result.indexOf(num2)] = num1;
+    
+        invalidRule = rules.find (it => !isRuleValid(it, result))
+    }    
+    return result;
+}
+
+export const addInvalidPages = (rules: Rule[], updates: number[][]) : number => {
+    return updates
+        .filter (page => !isValidUpdate(page, rules))
+        .map (page => reOrderUpdate(page, rules))
+        .sumOf(getMiddle)
 }

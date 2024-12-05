@@ -22,6 +22,10 @@ declare global {
          *  Generates an array of positions, one for each row, column of a grid
          */
         scanAll(): Array<Pos>
+        /**
+         * Split an array
+         */
+        split(item: T): Array<Array<T>>
     }
 
     interface String {
@@ -103,11 +107,14 @@ export const apply = () => {
         }
         return positions;
     }
-
-
+    Array.prototype.split = function(item: unknown): Array<Array<unknown>>{
+        return [
+            this.slice(0, this.indexOf(item)),
+            this.slice(this.indexOf(item)+1)
+        ]
+    }
 
     // String
-
     String.prototype.substringAfter = function (val: string) {
         return this.substring(this.indexOf(val) + val.length)
     };
