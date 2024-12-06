@@ -24,6 +24,8 @@ declare global {
          *  Generates an array of positions, one for each row, column of a grid
          */
         scanAll(): Array<Pos>
+
+        scan( callback: ( item: any) => boolean ): Array<Pos>
         /**
          * Split an array
          */
@@ -109,6 +111,24 @@ Array.prototype.scanAll = function() {
     }
     return positions;
 }
+Array.prototype.scan = function( callback: ( item: any) => boolean ): Array<Pos>{
+    const positions : Pos[] = []
+    for (let y = 0; y < this.length; y++) {
+        if (this[y] instanceof Array){
+            const ar = this[y] as Array<unknown>
+            for (let x = 0; x < ar.length; x++) {
+                if (callback(ar[x])){
+                    positions.push( {
+                        x,
+                        y 
+                    })   
+                }
+            }
+        }
+    }
+    return positions;
+}
+
 Array.prototype.split = function(item: unknown): Array<Array<unknown>>{
     return [
         this.slice(0, this.indexOf(item)),
