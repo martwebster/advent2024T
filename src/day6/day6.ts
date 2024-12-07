@@ -1,8 +1,51 @@
+enum Direction {
+    Up = "^",
+    Down = "v",
+    Left = "<",
+    Right = ">"
+}
+
+namespace Direction {
+    export const turn = (direction: Direction ): Direction => {
+        switch (direction) {
+            case Direction.Right: return Direction.Down;
+            case Direction.Down: return Direction.Left;
+            case Direction.Left: return Direction.Up;
+            case Direction.Up: return Direction.Right;
+        }
+    }
+
+    export const nextPos = (direction : Direction, pos: Pos): Pos =>{
+        switch (direction) {
+            case Direction.Up:
+                return {
+                    x: pos.x,
+                    y: pos.y-1
+                }
+            case Direction.Right:
+                return {
+                    x: pos.x+1,
+                    y: pos.y,
+                }
+            case Direction.Down: 
+                return {
+                    x: pos.x,
+                    y: pos.y+1,
+                }
+            case Direction.Left:
+                return {
+                    x: pos.x-1,
+                    y: pos.y,
+                }
+        }
+    }
+}
+
 interface Cell {
     obstruction: boolean;
     visited: boolean;
-    direction: string;
     start: boolean;
+    direction?: Direction;
 }
 
 const parseLine = (data: string): Cell[] =>{
@@ -11,9 +54,9 @@ const parseLine = (data: string): Cell[] =>{
         const element = data.charAt(index);
         line.push ({
           obstruction: element === "#",
-          direction: element === '^'? "^" : "",
+          direction: element === Direction.Up? Direction.Up:undefined,
           visited: false,
-          start: element === '^'? true :false,
+          start: element === Direction.Up? true :false,
         })
     }
     return line;
@@ -31,52 +74,25 @@ export const getCell = (map: Cell[][], pos: Pos) : Cell| undefined =>{
     return row[pos.x];
 } 
 
-export const turn = (direction: string ): string => {
-    if (direction===">") return "v";
-    if (direction==="v") return "<";
-    if (direction==="<") return "^";
-    if (direction==="^") return ">"
-    throw Error("Invalid direction"+direction)
-}
-
+// Main function to move in the map
 export const move = (map: Cell[][], pos: Pos) : Pos | undefined =>{
     const current = getCell(map, pos);
     current!.visited = true;
     
     var direction = current!.direction
-    var nextPos = pos;
-    if (direction=== "^") { 
-        nextPos = {
-            x: pos.x,
-            y: pos.y-1
-        }
-    } else if (direction === ">"){
-        nextPos = {
-            x: pos.x+1,
-            y: pos.y,
-        }
-    } else if (direction === "v"){
-        nextPos = {
-            x: pos.x,
-            y: pos.y+1,
-        }
-    } else if (direction === "<"){
-        nextPos = {
-            x: pos.x-1,
-            y: pos.y,
-        }
-    }
-
+    var nextPos = Direction.nextPos(direction!, pos);
     var next = getCell(map, nextPos)
+    // check if off the map, which means that you have finished
     if (next === undefined){
-        current!.direction = ''
+        current!.direction = undefined
         return undefined
     }
-    if (next?.obstruction){
+    // check if obstruction, then turn, but don't move 
+    if (next.obstruction){
         nextPos = pos
-        direction = turn(current!.direction)
+        direction = Direction.turn(current!.direction!)
     }
-    current!.direction = ''
+    current!.direction = undefined
     next = getCell(map, nextPos);
     next!.direction = direction
 
@@ -120,7 +136,7 @@ const printLine = (line : Cell[]) : void =>{
     line.forEach ( it=> {
         if (it.obstruction) display += "#"
         else if (it.visited) display += "X"
-        else if (it.direction.length>0) display += it.direction
+        else if (it.direction) display += it.direction
         else display = display + "."
     })
     console.log(display);
