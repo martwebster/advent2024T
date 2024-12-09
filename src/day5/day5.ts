@@ -4,10 +4,10 @@ interface Rule {
 }
 
 export const parseRules = (data: string[]): Rule[] =>{
-    return data.map (it => { return { 
+    return data.map (it => ( { 
         first: Number(it.substringBefore("|")), 
         second: Number(it.substringAfter("|")) 
-    }})
+    }))
 }
 
 export const parsePages = (data: string): number[] =>{

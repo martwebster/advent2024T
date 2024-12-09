@@ -8,10 +8,10 @@ enum Direction {
 namespace Direction {
     export const turn = (direction: Direction ): Direction => {
         switch (direction) {
-            case Direction.Right: return Direction.Down;
+            case Direction.Up: return Direction.Right;
             case Direction.Down: return Direction.Left;
             case Direction.Left: return Direction.Up;
-            case Direction.Up: return Direction.Right;
+            case Direction.Right: return Direction.Down;
         }
     }
 
