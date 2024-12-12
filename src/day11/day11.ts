@@ -3,9 +3,9 @@ export const countNumber = (cache: Map<String, number>, digit : number, maxDepth
         return 1;
     }
     var cachkey = digit+":"+depth;
-    var cacheVale = cache.get(cachkey);
-    if (cacheVale){
-        return cacheVale
+    var cachedValue = cache.get(cachkey);
+    if (cachedValue){
+        return cachedValue
     }
 
     var total = 1;
@@ -17,11 +17,11 @@ export const countNumber = (cache: Map<String, number>, digit : number, maxDepth
         var pos = (length/2);
         var number1 = Number(digitStr.substring(0, pos))
         var number2 = Number(digitStr.substring(pos))
-        total = countNumber(cache, number1, maxDepth, depth+1) + countNumber(cache, number2, maxDepth, depth+1) 
+        total = countNumber(cache, number1, maxDepth, depth+1) 
+            + countNumber(cache, number2, maxDepth, depth+1) 
     } else{
         total = countNumber(cache, digit* 2024, maxDepth, depth+1);
     }
-
     cache.set(cachkey, total);
     return total;
 }

@@ -6,17 +6,14 @@ import {  countNumbers} from './day11';
 
 describe('day 11', () => {
 
-
   test('sample 2', () => {
     var numbers = countNumbers([125,17],6)
 
     expect(numbers).toBe(22)
     numbers = countNumbers([125,17],25)
-    expect(numbers).toBe(55312)
-    
+    expect(numbers).toBe(55312)    
   })
 
-  
   test('part 1', () => {
     var numbers = countNumbers([4,4841539,66,5279,49207,134,609568,0],25)
     expect(numbers).toBe(212655)
