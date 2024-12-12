@@ -1,7 +1,7 @@
 
 import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
-import {  buildRegions, findRegion, getDiscountPrice, getPrice, horizontal, horizontalBottom, horizontalTop, sides, vertical, verticalLeft, verticalRight} from './day12';
+import {  buildRegions, discoverRegion, getDiscountPrice, getPrice, sides} from './day12';
 import { readTestData } from '../utility/fileHelper';
 
 const data = readTestData('./src/day10/input.txt');
@@ -18,31 +18,31 @@ describe('day 12', () => {
     // start from top lef, and flood fill
     // adding to region
 
-    var region = findRegion(garden, {x: 0 ,y:0})
+    var region = discoverRegion(garden, {x: 0 ,y:0})
 
     expect(region.plant).toBe("A")
     expect(region.positions.length).toBe(4)
     expect(region.perimeter).toBe(10)
 
-    var region = findRegion(garden, {x: 0 ,y:1})
+    var region = discoverRegion(garden, {x: 0 ,y:1})
 
     expect(region.plant).toBe("B")
     expect(region.positions.length).toBe(4)
     expect(region.perimeter).toBe(8)
     
-    var region = findRegion(garden, {x: 2 ,y:1})
+    var region = discoverRegion(garden, {x: 2 ,y:1})
 
     expect(region.plant).toBe("C")
     expect(region.positions.length).toBe(4)
     expect(region.perimeter).toBe(10)
 
-    var region = findRegion(garden, {x: 3 ,y:1})
+    var region = discoverRegion(garden, {x: 3 ,y:1})
 
     expect(region.plant).toBe("D")
     expect(region.positions.length).toBe(1)
     expect(region.perimeter).toBe(4)
 
-    var region = findRegion(garden, {x: 0 ,y:3})
+    var region = discoverRegion(garden, {x: 0 ,y:3})
 
     expect(region.plant).toBe("E")
     expect(region.positions.length).toBe(3)
@@ -115,7 +115,4 @@ describe('day 12', () => {
     
     expect (getDiscountPrice(regions)).toBe(236)
   });
-
-
- 
 })

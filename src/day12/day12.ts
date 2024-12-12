@@ -1,39 +1,34 @@
+export interface Region{
+    positions: Pos[],
+    perimeter: number,
+    plant : string,
+    topPerim : Pos[], 
+    bottomPerim : Pos[],
+    leftPerim : Pos[],
+    rightPerim : Pos[]
+}
+
 export const buildRegions = (garden: string[]):  Region[]=>{
-    
     var regions : Region[] =[]
-    for (let yPos = 0; yPos < garden.length; yPos++) {
-       for (let xPos = 0; xPos < garden[yPos].length; xPos++) {
-        var currentPos = {
-            x: xPos,
-            y: yPos
-        }
-        const found = regions.map (it => it.positions)
-            .flat()
-            .find (it => it.x == currentPos.x && it.y==currentPos.y) 
-        if (!found){
-            regions.push(findRegion(garden, currentPos))
-        }
+    for (let y = 0; y < garden.length; y++) {
+       for (let x = 0; x < garden[y].length; x++) {
+         var currentPos = { x, y }
+         const found = regions.map (it => it.positions)
+             .flat()
+             .find(it => it.x == currentPos.x && it.y==currentPos.y) 
+         if (!found){
+             regions.push(discoverRegion(garden, currentPos))
+         }
        } 
     }
     return regions;
 }
 
 const getPlant = (garden: string[], pos : Pos) :string| undefined =>{
-    
     if (pos.y<0 ||  pos.y >= garden.length){
         return undefined
     }
     return garden[pos.y][pos.x]
-}
-
-export interface Region{
-    positions: Pos[],
-    perimeter: number,
-    plant : string,
-    horizPerimTop : Pos[], 
-    horizPerimBottom : Pos[],
-    verticalPerimLeft : Pos[],
-    verticalPerimRight : Pos[]
 }
 
 export const flood = (garden: string[], currentPos: Pos, region: Region) =>{
@@ -47,7 +42,7 @@ export const flood = (garden: string[], currentPos: Pos, region: Region) =>{
         var nextPlant =  getPlant(garden, up)
         if (nextPlant == undefined || nextPlant !== region.plant){
             region.perimeter = region.perimeter+1
-            region.horizPerimTop.push(currentPos)
+            region.topPerim.push(currentPos)
         } else{ 
             region.positions.push(up)
             flood(garden, up, region)
@@ -63,13 +58,12 @@ export const flood = (garden: string[], currentPos: Pos, region: Region) =>{
         var nextPlant =  getPlant(garden, down)
         if (nextPlant == undefined || nextPlant !== region.plant){
             region.perimeter = region.perimeter+1
-            region.horizPerimBottom.push(currentPos)
+            region.bottomPerim.push(currentPos)
         } else{ 
             region.positions.push(down)
             flood(garden, down, region)
         }
     }
-
 
     // move left
     var left : Pos = {
@@ -81,7 +75,7 @@ export const flood = (garden: string[], currentPos: Pos, region: Region) =>{
         var nextPlant =  getPlant(garden, left)
         if (nextPlant == undefined || nextPlant !== region.plant){
             region.perimeter = region.perimeter+1
-            region.verticalPerimLeft.push(currentPos)
+            region.leftPerim.push(currentPos)
         } else{ 
             region.positions.push(left)
             flood(garden, left, region)
@@ -100,24 +94,22 @@ export const flood = (garden: string[], currentPos: Pos, region: Region) =>{
     var nextPlant =  getPlant(garden, right)
     if (nextPlant == undefined || nextPlant !== region.plant){
         region.perimeter = region.perimeter+1
-        region.verticalPerimRight.push(currentPos)
+        region.rightPerim.push(currentPos)
     } else{ 
         region.positions.push(right)
         flood(garden, right, region)
     }
 }
 
-export const findRegion = (garden: string[], currentPos : Pos) : Region =>{
-    const plant = getPlant(garden, currentPos)!
-    // starting from this position
+export const discoverRegion = (garden: string[], currentPos : Pos) : Region =>{
     var region : Region = {
         positions : [currentPos],
         perimeter: 0,
-        plant, 
-        horizPerimBottom: [],
-        horizPerimTop: [],
-        verticalPerimLeft : [],
-        verticalPerimRight : [],
+        plant: getPlant(garden, currentPos)!, 
+        bottomPerim: [],
+        topPerim: [],
+        leftPerim : [],
+        rightPerim : [],
     }
     flood(garden, currentPos, region)
 
@@ -130,10 +122,10 @@ export const getPrice = (regions: Region[]): number =>{
 
 // part 2
 export const sides =  (region : Region): number =>{
-    return horizontal(region.horizPerimBottom)+
-           horizontal(region.horizPerimTop) +
-           vertical(region.verticalPerimLeft) +
-           vertical(region.verticalPerimRight)
+    return horizontal(region.bottomPerim)+
+           horizontal(region.topPerim) +
+           vertical(region.leftPerim) +
+           vertical(region.rightPerim)
 }
 
 export const horizontal = (pos: Pos[]): number =>{
@@ -165,17 +157,6 @@ export const horizontal = (pos: Pos[]): number =>{
     return count
 }
 
-
-
-
-export const verticalRight = (region: Region): number =>{
-    return vertical(region.verticalPerimRight)
-}
-
-export const verticalLeft = (region: Region): number =>{
-    return vertical(region.verticalPerimLeft)
-}
-
 export const vertical = (pos: Pos[]): number =>{
     var minX = pos.minOf ( it => it.x)
     var maxX = pos.maxOf ( it => it.x)
@@ -203,10 +184,7 @@ export const vertical = (pos: Pos[]): number =>{
         }
     }
     return count
-
 }
-
-
 
 export const getDiscountPrice = (regions: Region[]): number =>{
     return regions.sumOf (it => it.positions.length * sides(it))
