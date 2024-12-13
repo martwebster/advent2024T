@@ -30,6 +30,11 @@ declare global {
          * Split an array
          */
         split(item: T): Array<Array<T>>
+
+        /**
+         * Split the array mulitple times
+         */
+        splitAll(item: T): Array<Array<T>>
     }
 
     interface String {
@@ -134,6 +139,18 @@ Array.prototype.split = function(item: unknown): Array<Array<unknown>>{
         this.slice(0, this.indexOf(item)),
         this.slice(this.indexOf(item)+1)
     ]
+}
+
+Array.prototype.splitAll = function(item: unknown): Array<Array<unknown>>{
+    var results : string[][] =[]
+    var toChunk = [...this]
+    while (toChunk.includes(item)){
+        var chunkBits = toChunk.split("");
+        toChunk = chunkBits[1];
+        results.push(chunkBits[0])
+    }
+    results.push(toChunk)
+    return results
 }
 
 // String
