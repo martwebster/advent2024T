@@ -2,7 +2,7 @@
 import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { buildEquations, chunk, deduct, equalizeEquations, price, priceAll } from './day13';
+import { price, priceAll } from './day13';
 
 const data = readTestData('./src/day10/input.txt');
 describe('day 13', () => {
