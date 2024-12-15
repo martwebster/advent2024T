@@ -5,12 +5,24 @@ declare global {
         x: number;
         y: number;
     }
-    
 
     interface Array<T> {
+        /**
+         * Return the last item in the array. Undefined returned for empty arrays
+         */
         last(): T | undefined
+        /**
+         * Return the first item in the array. Undefined return for empty arrays
+         */
         first(): T | undefined
+        /**
+         * Sum up all the elements in the array
+         */
         sum(): number
+        /**
+         * Sum up the results of the function. This is generally used to map to a property in an object
+         * @param attribute function passed through to extract a number to sum
+         */
         sumOf(attribute: (item: T) => number): number
         min(): number
         minOf(attribute: (item: T) => number): number
@@ -35,6 +47,15 @@ declare global {
          * Split the array mulitple times
          */
         splitAll(item: T): Array<Array<T>>
+        /**
+         * Count the number of times a predicate is true
+         */
+        countOf(filter: (item: T) => boolean): number
+
+        /**
+         * Swap two elements in an array
+         */
+        swap( from: Pos, to:Pos): void
     }
 
     interface String {
@@ -153,6 +174,19 @@ Array.prototype.splitAll = function(item: unknown): Array<Array<unknown>>{
     return results
 }
 
+/**
+ * Count the number of times a predicate is true
+ */
+Array.prototype.countOf = function (filter: (item: any) => boolean): number {
+    return this.filter(filter).length;
+}
+
+Array.prototype.swap = function (from: Pos, to: Pos ) : void {
+    var temp = this[to.y][to.x]
+    this[to.y][to.x] = this[from.y][from.x]
+    this[from.y][from.x] = temp;
+}
+
 // String
 String.prototype.substringAfter = function (val: string) {
     return this.substring(this.indexOf(val) + val.length)
@@ -181,4 +215,8 @@ String.prototype.toNumbers = function (delim: string = " ") {
         .map(it => Number(it));
 }
 
-
+export const repeat = (count: number, callback: () => void,  ): void=>{
+    for (let index = 0; index < count; index++) {
+        callback()
+    }
+} 
