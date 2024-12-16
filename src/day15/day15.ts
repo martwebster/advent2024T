@@ -22,41 +22,41 @@ export namespace Cell{
     }
 }
 
-export enum Direction {
+export enum Movement {
    Up = "^",
    Down = "v",
    Left = "<",
    Right = ">"
 }
-export namespace Direction{
-    export const from = ( line: string) : Direction[] => {
-        var row : Direction[] = []
+export namespace Movement{
+    export const from = ( line: string) : Movement[] => {
+        var row : Movement[] = []
         for (let index = 0; index < line.length; index++) {
             const element = line.charAt(index);
-            row.push(element as Direction)
+            row.push(element as Movement)
         }
         return row;
     }
 }
 
-export const getNextDirection = (pos: Pos, direction: Direction): Pos =>{
-    switch (direction) {
-        case Direction.Down:
+export const getNextPosition = (pos: Pos, movement: Movement): Pos =>{
+    switch (movement) {
+        case Movement.Down:
             return {
                 x: pos.x,
                 y: pos.y+1
             }
-        case Direction.Up:
+        case Movement.Up:
             return {
                 x: pos.x,
                 y: pos.y-1
             }
-        case Direction.Left:
+        case Movement.Left:
             return {
                 x: pos.x-1,
                 y: pos.y,
             }
-        case Direction.Right:
+        case Movement.Right:
             return {
                 x: pos.x+1,
                 y: pos.y,
@@ -64,8 +64,8 @@ export const getNextDirection = (pos: Pos, direction: Direction): Pos =>{
     }
 }
 
-export const push = (map: Cell[][], pos: Pos, direction: Direction, check: boolean = false ): boolean =>{
-    var next = getNextDirection(pos, direction);
+export const push = (map: Cell[][], pos: Pos, direction: Movement, check: boolean = false ): boolean =>{
+    var next = getNextPosition(pos, direction);
     var nextCell = map[next.y][next.x]
     if (nextCell == Cell.Space){
         if (!check){
@@ -73,7 +73,7 @@ export const push = (map: Cell[][], pos: Pos, direction: Direction, check: boole
         }
         return true;
     }
-    if (direction== Direction.Left || direction == Direction.Right){
+    if (direction== Movement.Left || direction == Movement.Right){
         if ((nextCell == Cell.Box || nextCell == Cell.RightBox || nextCell == Cell.LeftBox)  
             && push(map, next, direction)){
             if (!check){
@@ -89,7 +89,7 @@ export const push = (map: Cell[][], pos: Pos, direction: Direction, check: boole
             return true;
         }
         if (nextCell == Cell.LeftBox){
-            var nextRight = getNextDirection(next, Direction.Right)
+            var nextRight = getNextPosition(next, Movement.Right)
             // check if can push both
             var canPush = push( map, next, direction, true) && push( map, nextRight, direction, true)
             if (!check && canPush){
@@ -100,7 +100,7 @@ export const push = (map: Cell[][], pos: Pos, direction: Direction, check: boole
             return canPush;
         }
         if (nextCell == Cell.RightBox){
-            var nextLeft = getNextDirection(next, Direction.Left)
+            var nextLeft = getNextPosition(next, Movement.Left)
             var canPush = push( map, next, direction,true) && push( map, nextLeft, direction,true)
             if (!check && canPush){
                 push( map, next, direction,check) 
@@ -113,26 +113,26 @@ export const push = (map: Cell[][], pos: Pos, direction: Direction, check: boole
     return false;
 }
 
-export const move = (map: Cell[][], pos: Pos, direction: Direction) : Pos=>{
-    if (direction==Direction.Left){
-        if (push(map, pos, Direction.Left)){
-            return getNextDirection(pos, Direction.Left)
+export const move = (map: Cell[][], pos: Pos, direction: Movement) : Pos=>{
+    if (direction==Movement.Left){
+        if (push(map, pos, Movement.Left)){
+            return getNextPosition(pos, Movement.Left)
         }
-    } else if (direction == Direction.Right){
-        if (push(map, pos, Direction.Right)){
-            return getNextDirection(pos, Direction.Right)
+    } else if (direction == Movement.Right){
+        if (push(map, pos, Movement.Right)){
+            return getNextPosition(pos, Movement.Right)
         }
-    } else if (direction == Direction.Up){
-        if (push(map, pos, Direction.Up, true)){
-            push(map, pos, Direction.Up, false)
+    } else if (direction == Movement.Up){
+        if (push(map, pos, Movement.Up, true)){
+            push(map, pos, Movement.Up, false)
             return {
                 x: pos.x,
                 y: pos.y-1
             } as Pos
         }
-    } else if (direction = Direction.Down){
-        if (push(map, pos, Direction.Down, true)){
-            push(map, pos, Direction.Down, false)
+    } else if (direction = Movement.Down){
+        if (push(map, pos, Movement.Down, true)){
+            push(map, pos, Movement.Down, false)
             return {
                 x: pos.x,
                 y: pos.y+1

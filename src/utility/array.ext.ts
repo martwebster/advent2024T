@@ -118,6 +118,17 @@ Array.prototype.scanAll = function() {
 Array.prototype.scan = function( callback: ( item: any) => boolean ): Array<Pos>{
     const positions : Pos[] = []
     for (let y = 0; y < this.length; y++) {
+        if (typeof this[y] === 'string'){
+            const element = this[y] as string;
+            for (let x = 0; x < element.length; x++) {
+                if (callback(element[x])){
+                    positions.push( {
+                        x,
+                        y 
+                    })   
+                }   
+            }
+        }
         if (this[y] instanceof Array){
             const ar = this[y] as Array<unknown>
             for (let x = 0; x < ar.length; x++) {
