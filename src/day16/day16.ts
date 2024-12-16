@@ -4,6 +4,22 @@ export enum Dir {
     South = "S",
     West = "W",
 }
+
+export interface Cell {
+    content : string,
+    minPos : Map<Dir, number>
+}
+
+export const setMin = (cell: Cell, dir: Dir,cost: number) : boolean =>{
+    var val = cell.minPos.get(dir);
+    if (val == undefined || val >= cost) {
+        cell.minPos.set(dir, cost)
+        return true;
+    }
+    return false;
+}
+
+
 export namespace Dir {
     export const turnClock= (dir : Dir) : Dir =>{
         switch (dir) {
@@ -31,12 +47,15 @@ export interface Route {
     previous : string[]
 }
 
-export const createMaze = (data: string[]) : string[][] =>{
-    return data.map (it => it.split("")) 
+export const createMaze = (data: string[]) : Cell[][] =>{
+    return data.map (it => it.split("").map( it => ({
+        content: it, 
+        minPos: new Map<Dir, number>()
+    })))
 }
 
-export const getStart = (maze: string[][]) : Route =>{
-    var pos = maze.scan (it => it == "S")[0]
+export const getStart = (maze: Cell[][]) : Route =>{
+    var pos = maze.scan (it => it.content == "S")[0]
     return {
         cost: 0,
         direction: Dir.East,
@@ -45,7 +64,7 @@ export const getStart = (maze: string[][]) : Route =>{
     }
 }
 
-export const getCell = (maze: string[][], pos: Pos): string =>{
+export const getCell = (maze: Cell[][], pos: Pos): Cell =>{
     return maze[pos.y][pos.x]
 }
 
@@ -79,62 +98,62 @@ export const nextPos = (pos: Pos, dir: Dir): Pos =>{
     }
 }
 
-export const move = (maze: string[][], route: Route): Route[] =>{
+export const move = (maze: Cell[][], route: Route): Route[] =>{
     var routes : Route[] = [];
 
     // straight
     var strPos = nextPos(route.positon, route.direction)
     var cell = getCell(maze, strPos);
-    if ((cell=="." || cell=="E") && !route.previous.includes(strPos.x+ ":"+ strPos.y)){
-        routes.push({
+    if ((cell.content=="." || cell.content=="E")){
+        var next = {
             cost: route.cost + 1,
             direction: route.direction,
             positon: strPos, 
             previous: [... route.previous,  route.positon.x + ":" + route.positon.y]
-        })
+        }
+        if (setMin(cell, next.direction, next.cost)){
+            routes.push(next)
+        }
     }
 
     // clockwise
     var clockDir = Dir.turnClock(route.direction);
-    var clockPos = nextPos(route.positon, clockDir)
-    var cell = getCell(maze, clockPos);
-    if ((cell=="." || cell=="E") && !route.previous.includes(clockPos.x + ":"+ clockPos.y)){
-        routes.push({
-            cost: route.cost + 1001,
+    var cell = getCell(maze, route.positon);
+    if ((cell.content=="." || cell.content=="E")){
+        var next = {
+            cost: route.cost + 1000,
             direction: clockDir,
-            positon: clockPos, 
-            previous: [... route.previous,  route.positon.x + ":" + route.positon.y]
-        })
+            positon: route.positon, 
+            previous: [... route.previous]
+        }
+        if (setMin(cell, next.direction, next.cost)){
+            routes.push(next)
+        }
     }
 
-    // clockwise
+    // anti -clockwise
     var antiClockDir = Dir.turnAnti(route.direction);
     var antiClockPos = nextPos(route.positon, antiClockDir)
     var cell = getCell(maze, antiClockPos);
-    if ((cell=="." || cell== "E") && !route.previous.includes(antiClockPos.x + ":"+ antiClockPos.y)){
-        routes.push({
+    if ((cell.content=="." || cell.content== "E")){
+        var next = {
             cost: route.cost + 1001,
             direction: antiClockDir,
             positon: antiClockPos, 
             previous: [... route.previous,  route.positon.x + ":" + route.positon.y]
-        })
+        }
+        if (setMin(cell, next.direction, next.cost)){
+            routes.push(next)
+        }
     }
     return routes
 }
 
-export const moveRoutes = (maze: string[][], routes: Route[]): Route[] =>{
+export const moveRoutes = (maze: Cell[][], routes: Route[]): Route[] =>{
     return routes.flatMap ( it=> move(maze, it))
 }
-export const isCheapest = (route: Route, routes: Route[]): boolean =>{
-   var previus = routes.filter(it => it.previous.includes(route.positon.x + ":" + route.positon.y))
-   if (previus.length==0){
-     return true;
-   }
-   var cheaper = previus.find (it => it.cost < route.cost)
-   return (cheaper!= undefined)
-}
 
-export const moveToEnd = (maze: string[][]): number =>{
+export const moveToEnd = (maze: Cell[][]): number =>{
     var end = Number.MAX_VALUE;
     var routes = [getStart(maze)]
     var count = 0
@@ -142,22 +161,20 @@ export const moveToEnd = (maze: string[][]): number =>{
         routes = moveRoutes(maze, routes)
         count++
         routes = routes.filter (it => it.cost < end)
-        routes = routes.filter (it => isCheapest(it, routes))
-
-        var endRoutes = routes.filter (it => getCell(maze, it.positon)=="E");
+        var endRoutes = routes.filter (it => getCell(maze, it.positon).content=="E");
         if (endRoutes.length>0){
-            end = Math.min ( end, endRoutes.minOf( it=> it.cost))
-        }
-        console.log(routes.length)
-        if (count > 1000 || routes.length>10000){
-            console.log(routes.length)
+            endRoutes.forEach (it => {
+                if (it.cost< end){
+                    end = it.cost
+                }
+            })
+           routes = routes.filter ( it =>  getCell(maze, it.positon).content!="E")
         }
     }
     return end;
 }
 
-export const displayMaze= (maze: string[][], routes: Route[]): void =>{
-    
+export const displayMaze= (maze: Cell[][], routes: Route[]): void =>{
     for (let y = 0; y < maze.length; y++) {
         const line = maze[y];
         var result = ""
@@ -166,13 +183,70 @@ export const displayMaze= (maze: string[][], routes: Route[]): void =>{
                 x,
                 y
             })
-            if (cell!= "."){
-                result += cell
+            if (cell.content!= "."){
+                result += cell.content
             } else{
-                result += routes.countOf ( it => it.positon.x ==x && it.positon.y==y)
+                var count = routes.countOf ( it => it.positon.x ==x && it.positon.y==y);
+                if (count ==0){
+                    result += "."
+                } else{
+                    result += count
+                }
             }
         }
-        console.log(line)
+        console.log(result)
     }
     console.log("--")
+}
+
+export const displayRoute= (maze: Cell[][], route: Route): void =>{
+    for (let y = 0; y < maze.length; y++) {
+        const line = maze[y];
+        var result = ""
+        for (let x = 0; x < line.length; x++) {
+            var cell = getCell(maze, {
+                x,
+                y
+            })
+            if (cell.content!= "."){
+                result += cell.content
+            } else{
+                if (route.previous.includes(x + ":" + y) || (route.positon.x== x && route.positon.y == y)  ){
+                    result += "0"
+                } else{
+                    result += "."
+                }
+                
+            }
+        }
+        console.log(result)
+    }
+    console.log("--")
+}
+
+export const part2 = (maze: Cell[][]): number =>{
+    var end = Number.MAX_VALUE;
+    var bestRoutes : Route[] = []
+    var routes = [getStart(maze)]
+    var count = 0
+    while (routes.length>0){
+        routes = moveRoutes(maze, routes)
+        count++
+        routes = routes.filter (it => it.cost < end)
+        var endRoutes = routes.filter (it => getCell(maze, it.positon).content=="E");
+        if (endRoutes.length>0){
+            endRoutes.forEach (it => {
+                if (it.cost< end){
+                    end = it.cost
+                    bestRoutes = [it]
+                } else if (it.cost == end){
+                    bestRoutes.push(it)
+                }
+            })
+           routes = routes.filter ( it =>  getCell(maze, it.positon).content!="E")
+        }
+    }
+    var allPositions = bestRoutes.flatMap( it => it.previous)
+    var positions = new Set(allPositions)
+    return positions.size+1;
 }
