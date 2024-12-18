@@ -66,25 +66,77 @@ export interface Register{
 }
 
 export const getOperandValue = (register: Register, op: Op, operand: number): number =>{
-    var combos : Op[] = [Op.bst, Op.out, Op.adv, Op.cdv]
-    if (combos.includes(op)){
-        if (operand <4){
-            return operand
-        }
-        if (operand == 4){
-            return register.A
-        }
-        if (operand == 5){
-            return register.B
-        }
-        if (operand == 6){
-            return register.C
-        }
-    } else{
-        return operand
+    if (operand == 4){
+        return register.A
+    }
+    if (operand == 5){
+        return register.B
+    }
+    if (operand == 6){
+        return register.C
     } 
-    throw Error("Invalid "+op+ " "+operand)
+    return operand
 }
+
+export function runProgram2(program: number[], registerA : number, registerB = 0, registerC = 0) {
+    let i = 0;
+    const output = [];
+    while (i >= 0 && i < program.length) {
+      const instruction = program[i];
+      const literalOperand = program[i + 1];
+      let comboOperand;
+      switch (literalOperand) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          comboOperand = literalOperand;
+          break;
+        case 4:
+          comboOperand = registerA;
+          break;
+        case 5:
+          comboOperand = registerB;
+          break;
+        case 6:
+          comboOperand = registerC;
+          break;
+      }
+      switch (instruction) {
+        case 0:
+          registerA = Math.trunc(registerA / 2 ** comboOperand!);
+          break;
+        case 1:
+          registerB = registerB ^ literalOperand;
+          break;
+        case 2:
+          registerB = comboOperand! & 7;
+          break;
+        case 3:
+          if (registerA !== 0) {
+            i = literalOperand;
+            continue;
+          }
+          break;
+        case 4:
+          registerB = registerB ^ registerC;
+          break;
+        case 5:
+          output.push(comboOperand! & 7);
+          break;
+        case 6:
+          registerB = Math.trunc(registerA / 2 ** comboOperand!);
+          break;
+        case 7:
+          registerC = Math.trunc(registerA / 2 ** comboOperand!);
+          break;
+        default:
+          throw new Error("Unknown instruction: "+ instruction);
+      }
+      i += 2;
+    }
+    return output;
+  }
 
 export const runProgram = (data: string, start: Register): Register | undefined =>{
     var register : Register = {
@@ -111,29 +163,30 @@ export const runProgram = (data: string, start: Register): Register | undefined 
 }
 
 export const calculate = (reg: Register, opCode: Op, operand: number): Register =>{
+    const comboOperand =  getOperandValue(reg, opCode, operand);
     switch (opCode) {
-        case Op.adv:
+        case Op.adv://0
             return {
                 ...reg,
-                A: Math.floor(reg.A / (Math.pow(2, getOperandValue(reg, opCode, operand))))
-            }
-        case Op.bxl:
+                A: Math.trunc(reg.A / 2 ** comboOperand)
+            } //registerA = Math.trunc(registerA / 2 ** comboOperand);
+        case Op.bxl://1
             return {
                 ...reg,
                 B: reg.B ^ operand
             }
 
-        case Op.bst:
+        case Op.bst: //2
             return {
                 ...reg,
-                B: getOperandValue(reg, opCode, operand) % 8
+                B: comboOperand & 7
             }
-        case Op.bxc:
+        case Op.bxc: //4
             return {
                 ...reg,
                 B: reg.B ^ reg.C
             }
-        case Op.out:
+        case Op.out: //5
             return {
                 ...reg,
                 output: [...reg.output, getOperandValue(reg, opCode, operand) % 8]
@@ -141,7 +194,7 @@ export const calculate = (reg: Register, opCode: Op, operand: number): Register 
         case Op.cdv:
             return {
                 ...reg,
-                C: Math.floor(reg.A / (Math.pow(2, getOperandValue(reg, opCode, operand))))
+                C: Math.trunc(reg.A / 2 ** comboOperand)
             }
 
         default:
