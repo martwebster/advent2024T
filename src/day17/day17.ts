@@ -78,66 +78,6 @@ export const getOperandValue = (register: Register, op: Op, operand: number): nu
     return operand
 }
 
-export function runProgram2(program: number[], registerA : number, registerB = 0, registerC = 0) {
-    let i = 0;
-    const output = [];
-    while (i >= 0 && i < program.length) {
-      const instruction = program[i];
-      const literalOperand = program[i + 1];
-      let comboOperand;
-      switch (literalOperand) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-          comboOperand = literalOperand;
-          break;
-        case 4:
-          comboOperand = registerA;
-          break;
-        case 5:
-          comboOperand = registerB;
-          break;
-        case 6:
-          comboOperand = registerC;
-          break;
-      }
-      switch (instruction) {
-        case 0:
-          registerA = Math.trunc(registerA / 2 ** comboOperand!);
-          break;
-        case 1:
-          registerB = registerB ^ literalOperand;
-          break;
-        case 2:
-          registerB = comboOperand! & 7;
-          break;
-        case 3:
-          if (registerA !== 0) {
-            i = literalOperand;
-            continue;
-          }
-          break;
-        case 4:
-          registerB = registerB ^ registerC;
-          break;
-        case 5:
-          output.push(comboOperand! & 7);
-          break;
-        case 6:
-          registerB = Math.trunc(registerA / 2 ** comboOperand!);
-          break;
-        case 7:
-          registerC = Math.trunc(registerA / 2 ** comboOperand!);
-          break;
-        default:
-          throw new Error("Unknown instruction: "+ instruction);
-      }
-      i += 2;
-    }
-    return output;
-  }
-
 export const getVal = (powers: number[], digit: number): number =>{
     var result = 0;
     for (let index = 0; index <= digit; index++) {
@@ -146,7 +86,7 @@ export const getVal = (powers: number[], digit: number): number =>{
     return result
 }
 
-export const runProgram = (data: string, start: Register): Register | undefined =>{
+export const runProgram = (data: string, start: Register): Register =>{
     var register : Register = {
         ...start
     }
@@ -197,7 +137,7 @@ export const calculate = (reg: Register, opCode: Op, operand: number): Register 
         case Op.out: //5
             return {
                 ...reg,
-                output: [...reg.output, getOperandValue(reg, opCode, operand) % 8]
+                output: [...reg.output, getOperandValue(reg, opCode, operand) & 7]
             }
         case Op.cdv:
             return {
@@ -208,31 +148,4 @@ export const calculate = (reg: Register, opCode: Op, operand: number): Register 
         default:
             throw Error ("Invalid "+opCode)
     }
-}
-
-export const hackValues = (program: string) : number[] =>{
-    return program.split(",").map (it => hackValue(program, Number(it)))
-}
-
-export const hackValue = (program: string, digit: number): number =>{
-    console.log("Finding ", digit)
-    for (let hackValue = 0; hackValue <100; hackValue++) {
-
-        var register : Register = {
-            A: hackValue, 
-            B: 0,
-            C: 0,
-            output: []
-        }
-        var result = runProgram(program, {
-            ...register,
-            A:hackValue
-        } as Register)
-        console.log("Attemping", hackValue,  result?.output[0])
-        if (digit == result?.output[0]){
-            return hackValue;
-        }
-    }
-    throw Error("Unable to hack value")
-
 }

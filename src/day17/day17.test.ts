@@ -138,63 +138,76 @@ describe('day 17', () => {
       return Math.pow(8, index)
     })
     powers.reverse();
-    
-    for (let index = 0; index < powers.length; index++) {
-      var val = getVal(powers, index)
+    console.log(powers)
 
-      var pos = progDigits.length - 1 - index;
+    var options : number[] = [0]
+    for (let index = 0; index < powers.length; index++) {
+       console.log()
+       
+       var pos = progDigits.length - 1 - index;
        const targetResult = progDigits[pos]
-       var reg = runProgram(prog, { 
-            ...start,
-            A: val
-          })
-       while (reg?.output[pos] != targetResult){
-           val = val + powers[index]
-           var reg = runProgram(prog, { 
-            ...start,
-            A: val
-          })
-       }
-       console.log(pos, targetResult, val, reg.output.join(","), reg.output.length)
+
+       var result : number[] = []
+       for (var x = 0; x<= 7;x++){
+         options.forEach(it =>{
+          var val = it + (powers[index] * x)
+          if (val>0){
+              var reg = runProgram(prog, { 
+                ...start,
+                A: val
+              })
+              if (reg?.output[pos] == targetResult){
+                result.push(val)
+                console.log(pos, x, targetResult, val, reg.output)
+              }
+           }
+         })
+        } 
+        options = result
     }
-    var big = 114914688313754
+    var big = options.min()
+    expect(big).toBe(136904920099226) //136904920099226
     var reg = runProgram(prog, { 
       ...start,
       A: big
     })
+    console.log(Number.MAX_SAFE_INTEGER)
     expect (reg?.output.join(",")).toBe("2,4,1,5,7,5,1,6,0,3,4,6,5,5,3,0")
+
+//136904921131418
+//136904921196954
+//136904921295258
   
    //136035152741552 too low
    //114914688313754
    //709720010415022
 })
-test('Part 3 - Sample', () => {
-  const input = readTestData("./src/day17/input.txt")
-  .map((a) => a.split(": "));
 
-  const register = new Map([
-    ["A", Number(input[0][1])],
-    ["B", Number(input[1][1])],
-    ["C", Number(input[2][1])],
-  ]);
-  const program = input[4][1].split(",").map(Number);
-  console.log(
-    runProgram3(program, register.get("A")!, register.get("B"), register.get("C")).join(",")
-  );
+test('Part 2 - Hack', () => {
+  const prog =  "2,4,1,5,7,5,1,6,0,3,4,6,5,5,3,0"
+  const progDigits = prog.split(",").map(it => Number(it))
 
-  let j = 0;
-  for (let i = program.length - 1; i >= 0; i--) {
-    j *= 8;
-    const currTarget = program.slice(i).join(",");
-    while (true) {
-      const curr = runProgram3(program, j).join(",");
-      if (curr === currTarget) {
-        break;
-      }
-      j++;
+  var x = 0
+
+  var result = runProgram(prog, { 
+    ...start,
+    A: x
+  })
+  var lengths : number[] = [];
+  while (x< 1_000_000){
+    x++;
+    var result = runProgram(prog, { 
+      ...start,
+      A: x
+    })
+    if (lengths[result.output.length]== undefined){
+      lengths[result.output.length]= x;
     }
   }
-  console.log(j);
-  });
+  console.log(lengths)
+});
+
 
 })
+
+105690555219968
