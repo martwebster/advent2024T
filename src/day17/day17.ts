@@ -138,6 +138,14 @@ export function runProgram2(program: number[], registerA : number, registerB = 0
     return output;
   }
 
+export const getVal = (powers: number[], digit: number): number =>{
+    var result = 0;
+    for (let index = 0; index <= digit; index++) {
+        result += powers[index];
+    }
+    return result
+}
+
 export const runProgram = (data: string, start: Register): Register | undefined =>{
     var register : Register = {
         ...start

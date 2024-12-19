@@ -2,10 +2,8 @@
 import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
 import { readTestData } from '../utility/fileHelper';
-import { calculate, hackValue, hackValues, Register, runProgram, runProgram2 } from './day17';
+import { calculate, getVal, hackValue, hackValues, Register, runProgram, runProgram2 } from './day17';
 import { runProgram3 } from './internet';
-
-
 
 
 
@@ -108,64 +106,66 @@ describe('day 17', () => {
     })
     powers.reverse();
     
-    // for (let index = 0; index < powers.length; index++) {
-    //   var val = powers[index];
-    //   var pos = progDigits.length - 1 - index;
-    //   console.log(val)
-    //    const targetResult = progDigits[pos]
-    //    var reg = runProgram(prog, { 
-    //         ...start,
-    //         A: val
-    //       })
-    //    while (reg?.output[pos] != targetResult){
-    //        val = val + powers[index]
-    //        var reg = runProgram(prog, { 
-    //         ...start,
-    //         A: val
-    //       })
-    //    }
-    //    powers[index] = val;
-    // }
-
-    let j = 0;
-    for (let i = progDigits.length - 1; i >= 0; i--) {
-      j *= 8;
-      const currTarget = progDigits.slice(i).join(",");
-      while (true) {
-        var te = runProgram(prog, {
-          ...start, 
-          A: j,
-        }as Register)
-        const curr = te?.output.join(",");
-        if (curr === currTarget) {
-          break;
-        }
-        j++;
+    for (let index = 0; index < powers.length; index++) {
+      var val = powers[index];
+      if (index > 0){
+        val = val + powers[index-1]
       }
+      var pos = progDigits.length - 1 - index;
+      console.log(val)
+       const targetResult = progDigits[pos]
+       var reg = runProgram(prog, { 
+            ...start,
+            A: val
+          })
+       while (reg?.output[pos] != targetResult){
+           val = val + powers[index]
+           var reg = runProgram(prog, { 
+            ...start,
+            A: val
+          })
+       }
+       powers[index] = val;
     }
-    console.log(j);
+    expect (powers.last()).toBe(117441)
   })
 
 
   test('Part 2', () => {
     const prog =  "2,4,1,5,7,5,1,6,0,3,4,6,5,5,3,0"
     const progDigits = prog.split(",").map(it => Number(it))
+    const powers = prog.split(",").map( (it, index)=> {
+      return Math.pow(8, index)
+    })
+    powers.reverse();
+    
+    for (let index = 0; index < powers.length; index++) {
+      var val = getVal(powers, index)
 
-    let j = 0;
-    for (let i = progDigits.length - 1; i >= 0; i--) {
-      j *= 8;
-      const currTarget = progDigits.slice(i).join(",");
-      while (true) {
-        var te = runProgram2(progDigits, j)
-        const curr = te.join(",");
-        if (curr === currTarget) {
-          break;
-        }
-        j++;
-      }
+      var pos = progDigits.length - 1 - index;
+       const targetResult = progDigits[pos]
+       var reg = runProgram(prog, { 
+            ...start,
+            A: val
+          })
+       while (reg?.output[pos] != targetResult){
+           val = val + powers[index]
+           var reg = runProgram(prog, { 
+            ...start,
+            A: val
+          })
+       }
+       console.log(pos, targetResult, val, reg.output.join(","), reg.output.length)
     }
-    console.log(j);
+    var big = 114914688313754
+    var reg = runProgram(prog, { 
+      ...start,
+      A: big
+    })
+    expect (reg?.output.join(",")).toBe("2,4,1,5,7,5,1,6,0,3,4,6,5,5,3,0")
+  
    //136035152741552 too low
+   //114914688313754
    //709720010415022
 })
 test('Part 3 - Sample', () => {
