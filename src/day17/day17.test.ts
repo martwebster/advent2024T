@@ -1,9 +1,7 @@
 
 import '../utility/extensions';
 import { test, describe, expect } from 'vitest'
-import { readTestData } from '../utility/fileHelper';
-import { calculate, getVal, hackValue, hackValues, Register, runProgram, runProgram2 } from './day17';
-import { runProgram3 } from './internet';
+import { Register, runProgram } from './day17';
 
 
 
