@@ -10,7 +10,7 @@ describe('day 20', () => {
      const data = readTestData('./src/day20/input.sample.txt');
      const track = createTrack(data);
      const inner = getInnerTrack(track)
-     expect(moveToEnd(track)).toBe(84)
+     expect(moveToEnd(track, [])).toBe(84)
      expect(inner.length).toBe(84)
      getCounts(track, inner)
    })
@@ -19,7 +19,7 @@ describe('day 20', () => {
       const data = readTestData('./src/day20/input.txt');
       const track = createTrack(data);
       const inner = getInnerTrack(track)
-      expect(moveToEnd(track)).toBe(9324)
+      expect(moveToEnd(track, [])).toBe(9324)
       expect(inner.length).toBe(9996)
       var count = getCounts(track, inner)
 

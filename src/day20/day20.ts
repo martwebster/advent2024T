@@ -40,22 +40,27 @@ export const getCell = (track: Cell[][], pos: Pos): Cell  =>{
     return track[pos.y][pos.x]
 }
 
-export const canVisit = (cell: Cell, cheat: boolean): boolean =>{
+export const canVisit = (cell: Cell, pos: Pos, nuclear: Pos[]): boolean =>{
     if (cell.visited){
         return false;
     }
     if (cell.content == "." || cell.content=="E"){
         return true;
     }
+    if (nuclear.includesObject(pos)){
+        return true;
+    }
+
     return false;
 
     //return (cell.content=="." || cell.content=="E")  && !cell.visited
 }
 
-export const moveCell = (track: Cell[][], cheat: boolean, route: Route, pos: Pos, result: Route[]) =>{
+export const moveCell = (track: Cell[][], nuclear: Pos[], route: Route, pos: Pos, result: Route[]) =>{
     var cell = getCell(track, pos);
-    if (canVisit(cell, cheat)){
+    if (canVisit(cell, pos, nuclear)){
         cell.visited = true;
+        
         result.push({
             ...route,
             pos: pos
@@ -63,7 +68,7 @@ export const moveCell = (track: Cell[][], cheat: boolean, route: Route, pos: Pos
     }
 }
 
-export const move = (memory: Cell[][], route: Route, cheat: boolean): Route[] =>{
+export const move = (memory: Cell[][], route: Route, nuclear: Pos[]): Route[] =>{
     var next : Route[] = [];
 
     // up
@@ -71,34 +76,34 @@ export const move = (memory: Cell[][], route: Route, cheat: boolean): Route[] =>
         x: route.pos.x,
         y: route.pos.y -1
     }
-    moveCell(memory, cheat, route, up, next,)
+    moveCell(memory, nuclear, route, up, next,)
 
 
     var down : Pos = {
         x: route.pos.x,
         y: route.pos.y +1
     }
-    moveCell(memory, cheat,route, down, next)
+    moveCell(memory, nuclear,route, down, next)
 
     var left : Pos = {
         x: route.pos.x-1,
         y: route.pos.y
     }
-    moveCell(memory, cheat, route, left, next)
+    moveCell(memory, nuclear, route, left, next)
 
     var right : Pos = {
         x: route.pos.x+1,
         y: route.pos.y
     }    
-    moveCell(memory, cheat, route, right, next)
+    moveCell(memory, nuclear, route, right, next)
     return next
 }
 
-export const moveStep = (track: Cell[][], routes: Route[], cheat: boolean): Route[] =>{
-    return routes.flatMap ( it=> move(track, it, cheat))
+export const moveStep = (track: Cell[][], routes: Route[], nuclear: Pos[]): Route[] =>{
+    return routes.flatMap ( it=> move(track, it, nuclear))
 }
 
-export const moveToEnd = (track: Cell[][], cheat: boolean = false): number =>{
+export const moveToEnd = (track: Cell[][], nuclear: Pos[]): number =>{
     track.flat().forEach (it=> it.visited = false)
     var count = 0;
     var startRoute = {
@@ -107,7 +112,7 @@ export const moveToEnd = (track: Cell[][], cheat: boolean = false): number =>{
     var routes = [ startRoute]
     var end = getEnd(track)
     while (!routes.find (it => it.pos.x ==end.x && it.pos.y==end.y)){
-        routes = moveStep(track, routes, cheat)
+        routes = moveStep(track, routes, nuclear)
         count++
     }
     return count;
@@ -119,12 +124,12 @@ export const getInnerTrack = ( track: Cell[][]) : Pos[] =>{
 }
 
 export const getCounts = (track: Cell[][], inner: Pos[]) : number=>{
-    var baseline = moveToEnd(track)
+    var baseline = moveToEnd(track, [])
     var result : Map<number, number> = new Map();
     var goodOnes = 0;
     inner.forEach (pos =>{
-        getCell(track, pos).content = "."
-        var count = moveToEnd(track)
+        var nuclear : Pos[] = [pos]
+        var count = moveToEnd(track, nuclear)
         var saving = baseline - count;
 
         if (saving>= 100){
@@ -136,7 +141,6 @@ export const getCounts = (track: Cell[][], inner: Pos[]) : number=>{
             current = 0
         }
         result.set(saving, current+1)
-        getCell(track, pos).content = "#"
     })
     console.log(result)
     console.log(goodOnes)
