@@ -7,21 +7,15 @@ export const prune = (secret: number): number =>{
     return ((secret%16777216)+16777216)%16777216
 }
 
-export const mixPrune = (secret: number, value: number): number =>{
-    return prune(mix(secret, value))
-}
-
 
 export const next = (initial: number): number =>{
     var secret = initial;
-
-    secret = mixPrune(secret, secret * 64)
-    secret = mixPrune(secret, secret / 32)
-    return mixPrune(secret, secret * 2048)
+    secret = prune(mix(secret, secret * 64))
+    secret = prune(mix(secret, secret / 32))
+    return prune(mix(secret, secret * 2048))
 }   
 
 export const loop = (secret: number, times : number): number =>{
-
     var value = secret
     for (let index = 0; index < times; index++) {
         value = next(value)
@@ -33,10 +27,10 @@ export const sumBuyers = (buyers: number[]): number =>{
     return buyers.sumOf (it => loop(it, 2000))
 }
 
-export const getPrice = (value: number): number =>{
+// Part 2
+const getPrice = (value: number): number =>{
     return Number(value.toString().charAt(value.toString().length-1))
 }
-// Part 2
 
 export const getSequences = (secret: number) : Map<string, number> =>{
     var value = secret
@@ -49,7 +43,8 @@ export const getSequences = (secret: number) : Map<string, number> =>{
         var price = getPrice(value)
         diffs.push(price - lastPrice)
         if (diffs.length>3){
-            var sequence = [ diffs[diffs.length -4], diffs[diffs.length -3], diffs[diffs.length -2], diffs[diffs.length -1]].join(",")
+            diffs = diffs.slice(diffs.length-4)
+            var sequence = diffs.join(",")
             if (sequences.get(sequence)== undefined){
                 sequences.set(sequence, price)
             }
