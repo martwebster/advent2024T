@@ -14,6 +14,7 @@ declare global {
          * @param delim defaults to " ", but can passed through
          */
         toNumbers(delim?: string): number[];
+        lastChar(): string
     }
 }
 
@@ -44,4 +45,7 @@ String.prototype.toNumbers = function (delim: string = " ") {
     return this.split(delim)
         .filter(it => it.length > 0)
         .map(it => Number(it));
+}
+String.prototype.lastChar = function () {
+    return this.charAt(this.length-1)
 }

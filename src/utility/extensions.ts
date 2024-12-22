@@ -1,5 +1,6 @@
 import './array.ext';
-import './string.ext'
+import './string.ext';
+import './map.ext';
 
 export {};
 
@@ -16,3 +17,7 @@ export const repeat = (count: number, callback: () => void,  ): void=>{
         callback()
     }
 } 
+
+export const modulo = (val: number, mod: number) : number =>{
+    return ((val%mod)+mod)%mod
+}

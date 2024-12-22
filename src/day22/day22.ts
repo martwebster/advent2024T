@@ -1,12 +1,12 @@
+import { modulo } from "../utility/extensions"
 
 export const mix = (secret: number, value: number): number =>{
     return secret ^ value
 }
 
 export const prune = (secret: number): number =>{
-    return ((secret%16777216)+16777216)%16777216
+    return modulo(secret, 16777216)
 }
-
 
 export const next = (initial: number): number =>{
     var secret = initial;
@@ -29,7 +29,7 @@ export const sumBuyers = (buyers: number[]): number =>{
 
 // Part 2
 const getPrice = (value: number): number =>{
-    return Number(value.toString().charAt(value.toString().length-1))
+    return Number(value.toString().lastChar())
 }
 
 export const getSequences = (secret: number) : Map<string, number> =>{
@@ -57,7 +57,7 @@ export const getSequences = (secret: number) : Map<string, number> =>{
 export const getTopSequences = (secret: number): Set<string> =>{
     var sequences = getSequences(secret)
     
-    var top9 = new Map([...sequences.entries()].filter( it => it[1]==9));
+    var top9 = sequences.filter( it => it[1]==9);
 
     return new Set(top9.keys())
 }
@@ -86,8 +86,7 @@ export const getTopBanana = (monkeys: number[]) : number=>{
         })
     })
 
-    // sort and return first
-    var top = new Map([...totals.entries()].sort( (a,b) => b[1] - a[1]));
-    var first = top.entries().next().value
-    return first?.[1]!
+    return totals
+        .sort( (a,b) => b[1] - a[1])
+        .first()[1]
 }
