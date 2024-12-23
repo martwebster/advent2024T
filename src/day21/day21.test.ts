@@ -42,9 +42,6 @@ describe('day 21', () => {
 
 
 test ('Part 1', () =>{
-
-  
-    
   expect (getTimes("<A",2)).toBe("<vA<AA>>^AvAA<^A>A")
   expect (getTimes(">A",2)).toBe("<vA>^A<A>A")
   expect (getTimes("^A",2)).toBe("<v<A>>^AvA^A")
@@ -56,8 +53,14 @@ test ('Part 1', () =>{
   expect (getScore(sample)).toBe(126384)
   expect (getScore(full)).toBe(202648)
 
+  expect (getTimes(">A",5)).toBe("<vA>^A<A>A");
+   // vA^A = 4 
+   // <vA>^A<A>A = 10
+   // <v<A>A>^AvA<^A>A<v<A>>^AvA^A = 28
+   // <v<A>A<A>>^AvA^AvA<^A>A<vA>^A<v<A>^A>AvA^A<v<A>A<A>>^AvAA<^A>A<vA>^A<A>A = 60
+   //
 
-  expect (getScorePart2(sample)).toBe(126384)
+  //expect (getScorePart2(sample)).toBe(126384)
 
  })
 

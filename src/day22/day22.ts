@@ -36,7 +36,7 @@ export const getSequences = (secret: number) : Map<string, number> =>{
     var value = secret
     var lastPrice = getPrice(secret)
     var diffs : number[] = []
-    var sequences : Map<string, number> = new Map();
+    var sequences = new Map<string, number>();
 
     for (let index = 0; index < 2000; index++) {
         value = next(value)
