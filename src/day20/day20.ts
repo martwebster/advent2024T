@@ -1,7 +1,7 @@
 
 export interface Cell {
     content : string,
-    visited : boolean
+    minVisited : number,
 }
 
 export interface Route {
@@ -12,14 +12,13 @@ export interface Route {
 }
 
 export const createTrack = (data: string[]) : Cell[][] =>{
-    var results : Cell[][] = []
+    const results: Cell[][] = []
     for (let y = 0; y < data.length; y++) {
-        var row : Cell[] = []
+        const row: Cell[] = []
         for (let x = 0; x < data[y].length; x++) {
-            var item = data[y].charAt(x)
             row.push( {
-                content: item,
-                visited: false
+                content: data[y].charAt(x),
+                minVisited: Number.MAX_VALUE
             })
         }
         results.push(row)
@@ -40,22 +39,17 @@ export const getCell = (track: Cell[][], pos: Pos): Cell  =>{
     return track[pos.y][pos.x]
 }
 
-export const canVisit = (cell: Cell, cheat: boolean): boolean =>{
-    if (cell.visited){
+export const canVisit = (cell: Cell, steps: number): boolean =>{
+    if (cell.minVisited< steps){
         return false;
     }
-    if (cell.content == "." || cell.content=="E"){
-        return true;
-    }
-    return false;
-
-    //return (cell.content=="." || cell.content=="E")  && !cell.visited
+    return cell.content == "." || cell.content == "E";
 }
 
-export const moveCell = (track: Cell[][], cheat: boolean, route: Route, pos: Pos, result: Route[]) =>{
-    var cell = getCell(track, pos);
-    if (canVisit(cell, cheat)){
-        cell.visited = true;
+export const moveCell = (track: Cell[][], steps: number, route: Route, pos: Pos, result: Route[]) =>{
+    const cell = getCell(track, pos)
+    if (canVisit(cell, steps)){
+        cell.minVisited = steps
         result.push({
             ...route,
             pos: pos
@@ -63,51 +57,51 @@ export const moveCell = (track: Cell[][], cheat: boolean, route: Route, pos: Pos
     }
 }
 
-export const move = (memory: Cell[][], route: Route, cheat: boolean): Route[] =>{
-    var next : Route[] = [];
+export const move = (memory: Cell[][], route: Route, steps: number): Route[] =>{
+    const next: Route[] = []
 
-    // up
-    var up : Pos = {
+    const up: Pos = {
         x: route.pos.x,
-        y: route.pos.y -1
+        y: route.pos.y - 1
     }
-    moveCell(memory, cheat, route, up, next,)
+    moveCell(memory, steps, route, up, next,)
 
-
-    var down : Pos = {
+    const down: Pos = {
         x: route.pos.x,
-        y: route.pos.y +1
+        y: route.pos.y + 1
     }
-    moveCell(memory, cheat,route, down, next)
+    moveCell(memory, steps,route, down, next)
 
-    var left : Pos = {
-        x: route.pos.x-1,
+    const left: Pos = {
+        x: route.pos.x - 1,
         y: route.pos.y
     }
-    moveCell(memory, cheat, route, left, next)
+    moveCell(memory, steps, route, left, next)
 
-    var right : Pos = {
-        x: route.pos.x+1,
+    const right: Pos = {
+        x: route.pos.x + 1,
         y: route.pos.y
-    }    
-    moveCell(memory, cheat, route, right, next)
+    }
+    moveCell(memory, steps, route, right, next)
     return next
 }
 
-export const moveStep = (track: Cell[][], routes: Route[], cheat: boolean): Route[] =>{
-    return routes.flatMap ( it=> move(track, it, cheat))
+export const moveStep = (track: Cell[][], routes: Route[], steps: number): Route[] =>{
+    return routes.flatMap ( it=> move(track, it, steps))
 }
 
-export const moveToEnd = (track: Cell[][], cheat: boolean = false): number =>{
-    track.flat().forEach (it=> it.visited = false)
-    var count = 0;
-    var startRoute = {
-        pos:  getStart(track)
+export const moveToEnd = (track: Cell[][]): number =>{
+    track.flat().forEach (it=> it.minVisited = Number.MAX_VALUE)
+    let count = 0
+    const startRoute = {
+        pos: getStart(track)
     }
-    var routes = [ startRoute]
-    var end = getEnd(track)
+    let routes = [startRoute]
+    let end = getEnd(track)
+    let steps = 0
     while (!routes.find (it => it.pos.x ==end.x && it.pos.y==end.y)){
-        routes = moveStep(track, routes, cheat)
+        steps++
+        routes = moveStep(track, routes, steps)
         count++
     }
     return count;
@@ -119,27 +113,26 @@ export const getInnerTrack = ( track: Cell[][]) : Pos[] =>{
 }
 
 export const getCounts = (track: Cell[][], inner: Pos[]) : number=>{
-    var baseline = moveToEnd(track)
-    var result : Map<number, number> = new Map();
-    var goodOnes = 0;
-    inner.forEach (pos =>{
+    const baseline = moveToEnd(track)
+    const result: Map<number, number> = new Map()
+    let goodOnes = 0
+    for (const pos of inner) {
         getCell(track, pos).content = "."
-        var count = moveToEnd(track)
-        var saving = baseline - count;
+        const count = moveToEnd(track)
+        const saving = baseline - count
 
         if (saving>= 100){
             goodOnes++
         }
 
-        var current = result.get(saving);
+        let current = result.get(saving)
         if (current== undefined){
             current = 0
         }
         result.set(saving, current+1)
         getCell(track, pos).content = "#"
-    })
+    }
     console.log(result)
     console.log(goodOnes)
     return goodOnes
-
 }

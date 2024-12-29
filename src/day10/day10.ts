@@ -15,17 +15,17 @@ export const getStartPositions = (map: number[][]): Pos[] => {
   return map.scan(it => it === 0)
 }
 
-export const isOnMap = (map: number[][], position: Pos, hill: number): boolean => {
-  if (position.x < 0 || position.y < 0) {
+export const isOnMap = (map: number[][], { x, y }: Pos, hill: number): boolean => {
+  if (x < 0 || y < 0) {
     return false
   }
-  if (position.y >= map.length) {
+  if (y >= map.length) {
     return false
   }
-  if (position.x >= map[0].length) {
+  if (x >= map[0].length) {
     return false
   }
-  return map[position.y][position.x] == hill
+  return map[y][x] == hill
 }
 
 export const move = (map: number[][], position: Pos, hill: number): Pos[] => {
