@@ -1,260 +1,226 @@
-
-export interface Cell {
-    content : string,
-    stepsLeft?: number,
+export interface Track {
+   cells: Cell[][],
+   start: Pos,
+   end: Pos,
+   baseline?: string[]
 }
 
-export interface Track{
-    cells: Cell[][],
-    start: Pos,
-    end: Pos,
-    baseline?: number
+export interface Cell {
+   content: string,
+   stepsLeft?: number,
 }
 
 export interface Route {
-    pos: Pos,
-    steps : number,
-    cheatCount: number,
-    cheatStart?: Pos,
-    cheatEnd?: Pos,
-    visited: string[]
+   pos: Pos,
+   steps: number,
+   visited: string[]
 }
 
-export const createTrack = (data: string[]) : Track =>{
-    const results: Cell[][] = []
-    for (let y = 0; y < data.length; y++) {
-        const row: Cell[] = []
-        for (let x = 0; x < data[y].length; x++) {
-            row.push( {
-                content: data[y].charAt(x),
+export const createTrack = (data: string[]): Track => {
+   const cells: Cell[][] = []
+
+   for (let y = 0; y < data.length; y++) {
+      const row: Cell[] = []
+      for (let x = 0; x < data[y].length; x++) {
+         row.push({
+            content: data[y].charAt(x)
+         })
+      }
+      cells.push(row)
+   }
+
+   return {
+      cells,
+      start: cells.scan(it => it.content == "S")[0],
+      end: cells.scan(it => it.content == "E")[0]
+   }
+}
+
+export const getCell = (track: Track, pos: Pos): Cell => {
+   return track.cells[pos.y][pos.x]
+}
+
+export const canVisit = (track: Track, route: Route): boolean => {
+   const { pos } = route
+   if (route.visited.includes(pos.x + ":" + pos.y)) {
+      return false
+   }
+   if (pos.x == 0 || pos.y == 0) {
+      return false
+   }
+   const cell = getCell(track, pos)
+   return cell.content == "." || cell.content == "E"
+}
+
+export const moveCell = (track: Track, route: Route, result: Route[]) => {
+   if (canVisit(track, route)) {
+      route.visited.push(route.pos.x + ":" + route.pos.y)
+      result.push(route)
+   }
+}
+
+export const moveRoute = (track: Track, route: Route): Route[] => {
+   const next: Route[] = []
+
+   const up: Route = {
+      steps: route.steps + 1,
+      visited: [...route.visited],
+      pos: {
+         x: route.pos.x,
+         y: route.pos.y - 1
+      }
+   }
+   moveCell(track, up, next)
+
+   const down: Route = {
+      steps: route.steps + 1,
+      visited: [...route.visited],
+      pos: {
+         x: route.pos.x,
+         y: route.pos.y + 1
+      }
+   }
+   moveCell(track, down, next)
+
+   const left: Route = {
+      steps: route.steps + 1,
+      visited: [...route.visited],
+      pos: {
+         x: route.pos.x - 1,
+         y: route.pos.y
+      }
+   }
+   moveCell(track, left, next)
+
+   const right: Route = {
+      steps: route.steps + 1,
+      visited: [...route.visited],
+      pos: {
+         x: route.pos.x + 1,
+         y: route.pos.y
+      }
+   }
+   moveCell(track, right, next)
+   return next
+}
+
+export const calculateBaseline = (track: Track): Route => {
+   const startRoute: Route = {
+      pos: track.start,
+      steps: 0,
+      visited: [track.start.x + ":" + track.start.y]
+   }
+   let routes = [startRoute]
+   var finisher: Route | undefined
+   while (finisher== undefined) {
+      routes = routes.flatMap(route => moveRoute(track, route))
+      finisher = routes.find(it => it.pos.x == track.end.x && it.pos.y == track.end.y)
+   }
+   return finisher
+}
+
+export const recordBaseline = (track: Track, baseline: string[]) => {
+   let stepsLeft = baseline.length - 1
+   for (const posString of baseline) {
+      const pos = {
+         x: Number(posString.substringBefore(":")),
+         y: Number(posString.substringAfter(":"))
+      }
+      const cell = getCell(track, pos)
+      cell.stepsLeft = stepsLeft
+      stepsLeft--
+   }
+   track.baseline = baseline
+   displayTrack(track)
+}
+
+export const displayTrack = (track: Track) => {
+   const displayRow = (row: Cell[]): string => {
+      return row.map(cell => {
+         if (cell.content == ".") {
+            if (cell.stepsLeft != undefined) {
+               return "-"
+            } else {
+               return "."
+            }
+         }
+         return cell.content
+      }).join("")
+   }
+   track.cells.forEach(it => console.log(displayRow(it)))
+}
+
+// Part 2
+export const getAvailablePositions = (pos: Pos, maxX: number,
+                                      maxY: number,
+                                      steps: number): Pos[] => {
+   const yTop = pos.y - steps
+
+   let xLeft = pos.x
+   let xRight = pos.x
+
+   let result: Pos[] = []
+   for (let y = yTop; y <= pos.y; y++) {
+      for (let x = xLeft; x <= xRight; x++) {
+         // from the top
+         result.push({
+            x,
+            y
+         })
+         // from the bottom
+         if (y != pos.y) {
+            result.push({
+               x,
+               y: pos.y + (pos.y - y)
             })
-        }
-        results.push(row)
-    }
+         }
+      }
+      xLeft--
+      xRight++
+   }
 
-    return {
-        cells: results,
-        start: getStart(results),
-        end: getEnd(results)
-    };
+   result = result.filter(pos => pos.y > -1 && pos.x > -1)
+   result = result.filter(pos => pos.y <= maxY && pos.x <= maxX)
+
+   return result
 }
 
-export const getStart = (cells: Cell[][]) : Pos =>{
-    return cells.scan (it => it.content == "S")[0]
+export const getCheats = (track: Track,
+                          seconds: number,
+                          minSavings: number): number[] => {
+   const results: number[] = []
+   for (const posStr of track.baseline!) {
+      const pos = {
+         x: Number(posStr.substringBefore(":")),
+         y: Number(posStr.substringAfter(":"))
+      }
+
+      const currentCell = getCell(track, pos)
+      const positions = getAvailablePositions(pos, track.cells[0].length - 1, track.cells.length - 1, seconds)
+
+      positions.map(next => {
+         const nextCell = getCell(track, next)
+         if (nextCell.stepsLeft != undefined) {
+            const distance = Math.abs(next.x - pos.x) + Math.abs(next.y - pos.y)
+            return (currentCell.stepsLeft! - nextCell.stepsLeft!) - distance
+         }
+         return -1
+      }).filter(saving => saving >= minSavings)
+         .forEach(saving => results.push(saving))
+   }
+   console.log(groupByCount(results))
+   return results
 }
 
-export const getEnd = (cells: Cell[][]) : Pos =>{
-    return cells.scan (it => it.content == "E")[0]
-}
-
-export const getCell = (track: Track, pos: Pos): Cell  =>{
-    return track.cells[pos.y][pos.x]
-}
-
-export const canVisit = (track: Track, cell: Cell, route: Route,maxCheats: number): boolean =>{
-    const {pos} = route;
-    if (route.visited.includes(pos.x + ":"+ pos.y)){
-        return false;
-    }
-    if (pos.x ==0 || pos.y==0){
-        return false;
-    }
-    if (pos.x == track.cells[0].length-1){
-        return false;
-    }
-    if (pos.y == track.cells.length-1){
-        return false;
-    }
-    if (cell.content == "." || cell.content == "E"){
-        if (route.cheatStart!= undefined && route.cheatEnd == undefined){
-            route.cheatEnd = pos
-            route.steps = route.steps + cell.stepsLeft!;
-            route.pos = track.end
-        }
-        route.visited.push(pos.x + ":"+ pos.y)
-        return true;
-    }
-    // if already cheated
-    if (route.cheatEnd){
-        return false;
-    }
-    if (route.cheatCount< maxCheats){
-        route.cheatCount++;
-        if (route.cheatStart== undefined){
-            route.cheatStart = {
-                x: Number(route.visited.last()?.substringBefore(":")),
-                y: Number(route.visited.last()?.substringAfter(":")),
-            }
-        }
-        route.visited.push(pos.x + ":"+ pos.y)
-        return true;
-    }
-    return false
-}
-
-export const moveCell = (track: Track, route: Route, result: Route[], maxCheats: number) =>{
-    const cell = getCell(track, route.pos)
-    if (canVisit(track, cell, route, maxCheats)){
-        result.push({
-            ...route,
-            steps : route.steps + 1,
-        })
-    }
-}
-
-export const moveRoute = (track: Track, route: Route, maxCheats: number): Route[] =>{
-    const next: Route[] = []
-
-    const up: Route = {
-        ...route,
-        visited: [...route.visited],
-        pos: {
-            x: route.pos.x,
-            y: route.pos.y - 1
-        }
-    }
-    moveCell(track, up, next, maxCheats)
-
-    const down: Route = {
-        ...route,
-        visited: [...route.visited],
-        pos: {
-            x: route.pos.x,
-            y: route.pos.y + 1
-        }
-    }
-    moveCell(track, down, next, maxCheats)
-
-    const left: Route = {
-        ...route,
-        visited: [...route.visited],
-        pos: {
-            x: route.pos.x - 1,
-            y: route.pos.y
-        }
-    }
-    moveCell(track, left, next, maxCheats)
-
-    const right: Route = {
-        ...route,
-        visited: [...route.visited],
-        pos: {
-            x: route.pos.x + 1,
-            y: route.pos.y
-        }
-    }
-    moveCell(track, right, next, maxCheats)
-    return next
-}
-
-export const getFastest = (track: Track, maxCheats: number): number =>{
-    const finishers = moveToEnd(track, maxCheats)
-    return finishers.minOf( it => it.steps)
-}
-
-export const getSavings = (track: Track, maxCheats: number, saving: number): number =>{
-    const cheats = getCheats(track, maxCheats, saving)
-    const groupedSavings = new Map<number, number>()
-    for (const cheat of cheats) {
-        const current = groupedSavings.get(cheat.saving);
-        if (current== undefined){
-            groupedSavings.set(cheat.saving, 1)
-        } else{
-            groupedSavings.set(cheat.saving, current+1)
-        }
-    }
-    const ordered = groupedSavings.sort((a, b) => a[0] - b[0])
-    console.log(ordered)
-    return cheats.length
-}
-
-export interface Cheat{
-    cheatStart: Pos,
-    cheatEnd: Pos,
-    saving: number
-}
-
-export const getCheats = (track: Track, maxCheats: number, saving: number): Cheat[] =>{
-    const startRoute : Route  = {
-        pos: track.start,
-        steps: 0,
-        cheatCount: 0,
-        visited: [track.start.x + ":"+ track.start.y]
-    }
-    let routes = [startRoute]
-    const cheats: Cheat[] = []
-    while (routes.length>0){
-        routes = routes.flatMap ( route=> moveRoute(track, route, maxCheats))
-        // record a cheat
-        const fin = routes.filter (it => it.pos.x ==track.end.x && it.pos.y==track.end.y)
-        for (const route of fin) {
-            if (route.cheatStart){
-                const cheatSaving = track.baseline! - route.steps
-                if (cheatSaving>= saving) {
-                    let currentRecord = cheats.find(cheat => cheat.cheatStart.x == route.cheatStart!.x && cheat.cheatStart.y == route.cheatStart!.y
-                       && cheat.cheatEnd.x == route.cheatEnd!.x && cheat.cheatEnd.y == route.cheatEnd!.y)
-                    if (currentRecord== undefined) {
-                        cheats.push({
-                            cheatStart: route.cheatStart,
-                            cheatEnd: route.cheatEnd!,
-                            saving: cheatSaving
-                        })
-                    } else{
-                        if (currentRecord.saving< cheatSaving){
-                            currentRecord.saving = cheatSaving
-                        }
-                    }
-                }
-            }
-        }
-        routes = routes.filter( it => !(it.pos.x == track.end.x && it.pos.y == track.end.y))
-    }
-    return cheats;
-}
-
-export const moveToEnd = (track: Track, maxCheats: number): Route[] =>{
-    const startRoute : Route  = {
-        pos: track.start,
-        steps: 0,
-        cheatCount: 0,
-        visited: [track.start.x + ":"+ track.start.y]
-    }
-    let routes = [startRoute]
-    const finishers: Route[] = []
-    while (routes.length>0){
-        routes = routes.flatMap ( route=> moveRoute(track, route, maxCheats))
-        finishers.push( ...routes.filter (it => it.pos.x ==track.end.x && it.pos.y==track.end.y) )
-        routes = routes.filter( it => !(it.pos.x == track.end.x && it.pos.y == track.end.y))
-    }
-    return finishers;
-}
-
-export const recordBaseline = (track: Track, baseline: string[]) =>{
-    var stepsLeft = baseline.length-1
-    for (const posString of baseline) {
-        const pos = {
-            x: Number(posString.substringBefore(":")),
-            y: Number(posString.substringAfter(":"))
-        }
-        const cell = getCell(track, pos)
-        cell.stepsLeft = stepsLeft;
-        stepsLeft--;
-    }
-    track.baseline = baseline.length-1
-}
-
-export const displayTrack= (track: Track) =>{
-    const displayRow = (row: Cell[]): string => {
-        return row.map( cell => {
-            if (cell.content=="."){
-                if (cell.stepsLeft != undefined){
-                    return "-"
-                } else{
-                    return "."
-                }
-            }
-            return cell.content;
-        }).join("")
-    }
-    track.cells.forEach( it=> console.log(displayRow(it)))
+const groupByCount = (numbers: number[]): Map<number, number> =>{
+   const groups = new Map<number, number>()
+   for (const val of numbers) {
+      const current = groups.get(val)
+      if (current == undefined) {
+         groups.set(val, 1)
+      } else {
+         groups.set(val, current + 1)
+      }
+   }
+   return groups.sort((a, b) => a[0] - b[0])
 }

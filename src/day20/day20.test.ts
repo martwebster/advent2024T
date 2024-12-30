@@ -1,53 +1,86 @@
 import "../utility/extensions"
 import { test, describe, expect } from "vitest"
 import { readTestData } from "../utility/fileHelper"
-import { createTrack, displayTrack, getFastest, getSavings, moveToEnd, recordBaseline } from "./day20"
+import {
+   createTrack,
+   getAvailablePositions, getCheats,
+   calculateBaseline,
+   recordBaseline
+} from "./day20"
 
 describe("day 20", () => {
    test("Sample 1", () => {
       const data = readTestData("./src/day20/input.sample.txt")
       const track = createTrack(data)
-      const baseline = moveToEnd(track, 0)[0]
+      const baseline = calculateBaseline(track)
 
       recordBaseline(track, baseline.visited)
 
-      expect(getFastest(track,0)).toBe(84)
-      expect(getFastest(track,1)).toBe(20)
-      expect(getFastest(track,3)).toBe(12)
-
-      expect(getSavings(track,1,1)).toBe(44)
+      // part 1
+      expect(getCheats(track,2,1).length).toBe(44)
+      // part 2
+      expect(getCheats(track,20,50).length).toBe(285)
    })
 
    test("Sample 2", () => {
       const data = readTestData("./src/day20/input.sample2.txt")
       const track = createTrack(data)
 
-      const baseline =  moveToEnd(track, 0)[0]
+      const baseline =  calculateBaseline(track)
       recordBaseline(track, baseline.visited)
-
-      expect(getFastest(track,0)).toBe(7)
-      expect(getFastest(track,1)).toBe(5)
-      expect(getFastest(track,2)).toBe(3)
-
-      expect(getSavings(track,1,1)).toBe(1)
+      expect(getCheats(track,2,1).length).toBe(1)
    })
 
    test("Part 1", () => {
       const data = readTestData("./src/day20/input.txt")
       const track = createTrack(data)
-      const baseline =  moveToEnd(track, 0)[0]
+      const baseline =  calculateBaseline(track)
       recordBaseline(track, baseline.visited)
-      displayTrack(track)
-      expect(getSavings(track,1,100)).toBe(1346)
+      expect(getCheats(track, 2,100).length).toBe(1346)
+      // part 2
+      expect(getCheats(track,20,100).length).toBe(985482)
    })
 
    test("Part 2 - Sample 2", () => {
       const data = readTestData("./src/day20/input.sample.txt")
       const track = createTrack(data)
-      const baseline = moveToEnd(track, 0)[0]
+      const baseline = calculateBaseline(track)
 
       recordBaseline(track, baseline.visited)
-      expect(getSavings(track,20,72)).toBe(29)
+      expect(getCheats(track,20,72).length).toBe(29)
    })
 
+   //  0123456789
+   //0 ----------
+   //1 ----------
+   //2 ----------
+   //3 -----X----
+   //4 ----XXX---
+   //5 ---XXSXX--
+   //6-----XXX--
+   //7------X---
+   //8----------
+   test("Part 2 - Available Pos", () => {
+      const positions = getAvailablePositions({
+         x: 5,
+         y: 5
+      }, 9,9, 2)
+      expect( positions.length).toBe(13)
+
+      //  0123456789
+      //0 ----------
+      //1 ----------
+      //2 -----X----
+      //3 ----XXX---
+      //4 ---XXXXX--
+      //5 --XXXSXXX-
+      //6----XXXXX--
+      //7-----XXX---
+      //8------X----
+      const positions2 = getAvailablePositions({
+         x: 5,
+         y: 5
+      }, 9,9, 3)
+      expect( positions2.length).toBe(25)
+   })
 })
