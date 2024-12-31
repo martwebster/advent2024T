@@ -1,67 +1,54 @@
-
-import '../utility/extensions';
-import { test, describe, expect } from 'vitest'
-import { readTestData } from '../utility/fileHelper';
-import {  DirectionKeyboard, getDirectionPaths, getTimes, getScore, getTransitions, NumericKeyPad, getScorePart2 } from './day21';
+import "../utility/extensions"
+import { test, describe, expect } from "vitest"
+import {
+   NumericKeyPad,
+   getMinLength, getMinForSequence, getQuickTotal, getQuickTotalPart2
+} from "./day21"
 
 const sample = [
-  "029A",
-  "980A",
-  "179A",
-  "456A",
-  "379A"
+   "029A",
+   "980A",
+   "179A",
+   "456A",
+   "379A"
 ]
 
- const full = [
-  "805A",
-  "983A",
-  "149A",
-  "413A",
-  "582A"
- ]
+const full = [
+   "805A",
+   "983A",
+   "149A",
+   "413A",
+   "582A"
+]
 
-describe('day 21', () => {
+describe("day 21", () => {
 
-  /**
- +---+---+---+
-| 7 | 8 | 9 |
-+---+---+---+
-| 4 | 5 | 6 |
-+---+---+---+
-| 1 | 2 | 3 |
-+---+---+---+
-    | 0 | A |
-    +---+---+
- */
+   test("Sample", () => {
+      const pad = new NumericKeyPad();
 
-//      +---+---+
-//      | ^ | A |
-//  +---+---+---+
-//  | < | v | > |
-//  +---+---+---+
+      expect(pad.getPathsAsString("029A")).toStrictEqual([
+         "<A^A^^>AvvvA",
+         "<A^A^>^AvvvA",
+         "<A^A>^^AvvvA"])
 
+      expect(getMinLength("<A^A>^^AvvvA", 1)).toBe(28)
+      expect(getMinLength("<A^A>^^AvvvA", 2)).toBe(68)
 
-test ('Part 1', () =>{
-  expect (getTimes("<A",2)).toBe("<vA<AA>>^AvAA<^A>A")
-  expect (getTimes(">A",2)).toBe("<vA>^A<A>A")
-  expect (getTimes("^A",2)).toBe("<v<A>>^AvA^A")
-  expect (getTimes("vA",2)).toBe("<v<A>A>^AvA<^A>A")
+      expect (getMinForSequence("029A",2)).toBe(68)
+      expect (getMinForSequence("980A",2)).toBe(60)
+      expect (getMinForSequence("179A",2)).toBe(68)
+      expect (getMinForSequence("456A",2)).toBe(64)
+      expect (getMinForSequence("379A",2)).toBe(64)
 
-  const pad = new NumericKeyPad(); 
-  const paths = pad.getPaths("582A")
+      expect (getQuickTotal(sample)).toBe(126384)
+   })
 
-  expect (getScore(sample)).toBe(126384)
-  expect (getScore(full)).toBe(202648)
+   test("Part 1", () => {
+      expect(getQuickTotal(full)).toBe(202648)
+   })
 
-  expect (getTimes(">A",5)).toBe("<vA>^A<A>A");
-   // vA^A = 4 
-   // <vA>^A<A>A = 10
-   // <v<A>A>^AvA<^A>A<v<A>>^AvA^A = 28
-   // <v<A>A<A>>^AvA^AvA<^A>A<vA>^A<v<A>^A>AvA^A<v<A>A<A>>^AvAA<^A>A<vA>^A<A>A = 60
-   //
-
-  //expect (getScorePart2(sample)).toBe(126384)
-
- })
+   test("Part 2", () => {
+      expect(getQuickTotalPart2(full)).toBe(248919739734728)
+   })
 
 })

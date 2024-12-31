@@ -151,6 +151,7 @@ export const displayTrack = (track: Track) => {
 }
 
 // Part 2
+// This could be harvested onto Pos
 export const getAvailablePositions = (pos: Pos, maxX: number,
                                       maxY: number,
                                       steps: number): Pos[] => {
@@ -212,6 +213,7 @@ export const getCheats = (track: Track,
    return results
 }
 
+// This could be harvested.
 const groupByCount = (numbers: number[]): Map<number, number> =>{
    const groups = new Map<number, number>()
    for (const val of numbers) {

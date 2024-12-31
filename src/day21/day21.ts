@@ -1,5 +1,3 @@
-import { Dir } from "../day16/day16";
-
 enum Direction {
     Up = "^",
     Down = "v", 
@@ -20,41 +18,30 @@ enum Direction {
     +---+---+
  */
 export class NumericKeyPad {
-    innderPad: NumericKeyPad | undefined;
-
-    constructor(innerPad? : NumericKeyPad){
-        this.innderPad = innerPad
-    }
-
-    private grid = [
-        "789", 
-        "456", 
-        "123", 
-        " 0A"]
-
-    private activePosition : Pos = {
-        y: 3,
-        x: 2
-    }
 
     public getPaths = (seq: string): string[][] =>{
-        var path = "A" + seq;
-        var transitions : string[][] = []
+        const path = "A" + seq
+        const transitions: string[][] = []
         for (let index = 0; index < path.length-1; index++) {
             const from = path.charAt(index)
             const to = path.charAt(index+1)
             transitions.push([from, to]);
         }
-        var result = transitions.map (it =>{
+        return transitions.map(it => {
             return this.getDirections(it[0], it[1])
-        })
+        });
+    }
+
+    public getPathsAsString( seq: string ): string[] {
+        let result = [""]
+        const paths = this.getPaths(seq)
+        for (const path of paths) {
+            result = path.flatMap( bit => result.map( ot => ot + bit))
+        }
         return result;
     }
 
-    //
-    //A456A
     public getDirections = (from: string, to:string) : string[] =>{
-        // A> 0
         if (from == "A" && to=="0"){
             return [Direction.Left + Direction.A]
         }
@@ -215,162 +202,16 @@ export class NumericKeyPad {
         else if (from == "6" && to=="A"){
             return [Direction.Down + Direction.Down + Direction.A]
         }
-
-
-        throw Error("unkown "+from+":"+to)
-    }
-
-    public press = (): Direction| undefined =>{
-        var button = this.grid[this.activePosition.y][this.activePosition.x];
-        if (this.innderPad == undefined){
-            return button as Direction
-        }
-        if (button=="A"){
-            return this.innderPad.press();
-        } 
-        this.move(button)
-        return undefined;
-    }
-
-    public move = (directions: string): void =>{
-        for (let x = 0; x < directions.length; x++) {
-            const element = directions.charAt(x);
-            if (element == Direction.Up){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y - 1
-                }
-            }
-            else if (element == Direction.Down){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y + 1
-                }
-            }
-            else if (element == Direction.Left){
-                this.activePosition = {
-                    x: this.activePosition.x-1,
-                    y: this.activePosition.y
-                }
-            }
-            else if (element == Direction.Right){
-                this.activePosition = {
-                    x: this.activePosition.x+1,
-                    y: this.activePosition.y
-                }
-            }
-            else if (element == Direction.A){
-                var result = this.press()
-                if (result !== undefined){
-                    var bit = directions.substring(0,x)
-                    console.log(result, x, bit, element)
-                }
-            }
-        }
+        throw Error("unknown "+from+":"+to)
     }
 }
 
-
+//      +---+---+
+//      | ^ | A |
+//  +---+---+---+
+//  | < | v | > |
+//  +---+---+---+
 export class DirectionKeyboard {
-    innderPad: DirectionKeyboard| undefined;
-    level: number;
-
-    constructor (pos: number, innderPad?: DirectionKeyboard){
-        this.innderPad = innderPad
-        this.level = pos
-    }
-    private grid = [
-        " "            + Direction.Up   + Direction.A,
-        Direction.Left + Direction.Down + Direction.Right
-        ]
-
-    private activePosition : Pos = {
-        y: 0,
-        x: 2
-    }
-
-    private currentStream = ""
-    private lastAPos = 0;
-
-    public move = (directions: string): Direction| undefined =>{
-        if (!this.innderPad){
-            return directions as Direction
-        }
-
-        for (let x = 0; x < directions.length; x++) {
-            // if (this.level==1){
-            //     console.log("Level 1 processing", directions.charAt(x))
-            // }
-            // if (this.level==2){
-            //     console.log("Level 2 press", directions.charAt(x))
-            // }
-            // if (this.level==3){
-            //     console.log("Level 3 press", directions.charAt(x))
-            // }
-            const element = directions.charAt(x);
-            if (element == Direction.Up){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y - 1
-                }
-            }
-            else if (element == Direction.Down){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y + 1
-                }
-            }
-            else if (element == Direction.Left){
-                this.activePosition = {
-                    x: this.activePosition.x-1,
-                    y: this.activePosition.y
-                }
-            }
-            else if (element == Direction.Right){
-                this.activePosition = {
-                    x: this.activePosition.x+1,
-                    y: this.activePosition.y
-                }
-            }
-            else if (element == Direction.A){
-                var button = this.grid[this.activePosition.y][this.activePosition.x];
-                if (this.innderPad){
-                    var result = this.innderPad!.move(button)
-                    if (result!= undefined){
-                        if (this.level ==1){
-                            var bit = directions.substring(this.lastAPos,x+1)
-                            if (result=="A"){
-                                console.log(this.currentStream, bit)
-                                this.lastAPos = x+1;
-                                this.currentStream = ""
-                            } else{
-                                this.currentStream = this.currentStream + result
-                            }
-
-                        } else{
-                            return result;
-                        }
-                    }
-                    
-                }
-            }
-        }
-        return undefined
-    }
-
-    public getPaths = (seq: string): string[][] =>{
-        var path = "A" + seq;
-        var transitions : string[][] = []
-        for (let index = 0; index < path.length-1; index++) {
-            const from = path.charAt(index)
-            const to = path.charAt(index+1)
-            transitions.push([from, to]);
-        }
-        var result = transitions.map (it =>{
-            return this.getDirections(it[0], it[1])
-        })
-        return result;
-    }
 
     public getDirections = (from: string, to:string) : string[]=>{
         if (from == Direction.Left && to==Direction.Up){
@@ -400,12 +241,6 @@ export class DirectionKeyboard {
                 Direction.Down + Direction.Left + Direction.Left + Direction.A,
             ]
         }
-        /// Backwards
-    //     +---+---+
-    //     | ^ | A |
-    // +---+---+---+
-    // | < | v | > |
-    // +---+---+---+
         if (from == Direction.Up && to==Direction.A ){
             return [Direction.Right + Direction.A]
         }
@@ -454,82 +289,15 @@ export class DirectionKeyboard {
     
         throw Error("unknown Direction - "+from+":"+to)
     }
-
-    public solve = (directions: string): string =>{
-        var result = ""
-        
-        for (let x = 0; x < directions.length; x++) {
-            const element = directions.charAt(x);
-            if (element == Direction.Up){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y - 1
-                }
-            }
-            if (element == Direction.Down){
-                this.activePosition = {
-                    x: this.activePosition.x,
-                    y: this.activePosition.y + 1
-                }
-            }
-            if (element == Direction.Left){
-                this.activePosition = {
-                    x: this.activePosition.x-1,
-                    y: this.activePosition.y
-                }
-            }
-            if (element == Direction.Right){
-                this.activePosition = {
-                    x: this.activePosition.x+1,
-                    y: this.activePosition.y
-                }
-            }
-            if (element == Direction.A){
-                result = result + this.grid[this.activePosition.y][this.activePosition.x]
-            }
-        }
-    
-        return result;
-    }
-}
-
-
-export const getPaths = (seq: string): string[][] =>{
-    var path = "A" + seq;
-    var transitions : string[][] = []
-    for (let index = 0; index < path.length-1; index++) {
-        const from = path.charAt(index)
-        const to = path.charAt(index+1)
-        transitions.push([from, to]);
-    }
-    console.log(transitions)
-    const keypad = new NumericKeyPad();
-    var result = transitions.map (it =>{
-        return keypad.getDirections(it[0], it[1])
-    })
-    console.log(result)
-    return result;
 }
 
 export const addOption = (soFar: string, options: string[]) : string[] => {
     return options.map (it => soFar + it)
 }
 
-export const getOptions = (seq: string): string[] =>{
-    const paths = getPaths(seq)
-    var results = [""]
-    for (let index = 0; index < paths.length; index++) {
-        const element = paths[index];
-        results = results.flatMap (it => addOption(it, element))
-    }
-    results.forEach (it => console.log(it))
-    return results;
-}
-
-
 export const getTransitions = (seq: string): string[][] =>{
-    var path = "A" + seq;
-    var transitions : string[][] = []
+    const path = "A" + seq
+    const transitions: string[][] = []
     for (let index = 0; index < path.length-1; index++) {
         const from = path.charAt(index)
         const to = path.charAt(index+1)
@@ -538,12 +306,11 @@ export const getTransitions = (seq: string): string[][] =>{
     return transitions;
 }
 
-
 export const getDirectionPaths = (seq: string): string[] =>{
     const transitions = getTransitions(seq)
-    const keypad = new DirectionKeyboard(1);
-    
-    var result = transitions.map (it =>{
+    const keypad = new DirectionKeyboard();
+
+    const result = transitions.map(it => {
         return keypad.getDirections(it[0], it[1])
     })
 
@@ -555,30 +322,46 @@ export const getDirectionPaths = (seq: string): string[] =>{
     return results;
 }
 
-export const getTimes = ( seq: string, times: number) : string =>{
-    var d = getDirectionPaths(seq)
-    for (let index = 1; index < times; index++) {
-        d = d.flatMap (it => getDirectionPaths(it))
-        d.sort ( (a,b) => a.length - b.length)
-        d = [d[0]]
-    }
+const cache = new Map<string, number>();
 
-    return d[0]
+export const getMinLength = (seq: string, depth: number): number =>{
+    const cacheKey = seq + ":" + depth
+    if (cache.has(cacheKey)) return cache.get(cacheKey)!
+
+    const parts = seq.split("A")
+    var total : number =0;
+    for (let i = 0; i < parts.length; i++){
+        let part = parts[i]
+        if (i != parts.length-1){
+            part = part + "A"
+        }
+        if (part.length>0){
+            if (depth==1){
+                total = total + getDirectionPaths(part).minOf(it => it.length)
+            } else{
+                total = total + getDirectionPaths(part).map( it => getMinLength(it, depth-1)).min()
+            }
+        }
+    }
+    cache.set(cacheKey, total)
+    return total;
 }
 
-export const getSingleScore= (seq: string, times: number): number =>{
-    const pad = new NumericKeyPad(); 
-    const paths = pad.getPaths(seq)
-    var mins = paths.map (part => part.map (it => getTimes(it, times).length))
-    const score = mins.map ( part => Math.min(...part)).sum()
-    console.log (Number(seq.substring(0,3)), score)
+export const getMinForSequence = (seq: string, depth: number): number =>{
+    const pad = new NumericKeyPad();
+    const paths = pad.getPathsAsString(seq)
+    return paths.minOf( it => getMinLength(it,depth))
+}
+
+export const getQuickScore=  ( seq: string, depth: number): number =>{
+    const score = getMinForSequence(seq, depth)
     return Number(seq.substring(0,3)) * score
 }
 
-export const getScore =  (data: string[]): number =>{
-    return data.sumOf (it => getSingleScore(it,2))
+export const getQuickTotal = ( items: string[]): number =>{
+    return items.sumOf( it => getQuickScore(it, 2))
 }
 
-export const getScorePart2 =  (data: string[]): number =>{
-    return data.sumOf (it => getSingleScore(it,5))
+export const getQuickTotalPart2 = ( items: string[]): number =>{
+    return items.sumOf( it => getQuickScore(it, 25))
 }
