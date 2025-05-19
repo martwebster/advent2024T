@@ -27,7 +27,7 @@ namespace Direction {
                 }
             case Direction.Right:
                 nextPos = {
-                    x: pos.x+1,
+                    x: pos.x,
                     y: pos.y,
                 }
             case Direction.Down: 
