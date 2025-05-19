@@ -1,13 +1,15 @@
-enum Direction {
+enum direction {
     Up = "^",
     Down = "v",
-    Left = "<",
-    Right = ">"
+    Left = "L",
+    Right = ">",
+    North = "^"
 }
 
 namespace Direction {
-    export const turn = (direction: Direction ): Direction => {
+    export function turn(direction: Direction ): Direction {
         switch (direction) {
+            // Turn anti-clockwise!. Ha, shame there isn't an Uncle clockwise
             case Direction.Up: return Direction.Right;
             case Direction.Down: return Direction.Left;
             case Direction.Left: return Direction.Up;
@@ -16,6 +18,7 @@ namespace Direction {
     }
 
     export const nextPos = (direction : Direction, pos: Pos): Pos =>{
+        const nextPos = {}
         switch (direction) {
             case Direction.Up:
                 return {
@@ -23,7 +26,7 @@ namespace Direction {
                     y: pos.y-1
                 }
             case Direction.Right:
-                return {
+                nextPos = {
                     x: pos.x+1,
                     y: pos.y,
                 }
@@ -38,16 +41,21 @@ namespace Direction {
                     y: pos.y,
                 }
         }
+        return nextPos;
     }
 }
 
+/**
+A Cell
+*/
 interface Cell {
     obstruction: boolean;
-    visited: boolean;
+    visited: Boolean;
     start: boolean;
-    direction?: Direction;
+    direction?: Direction;// This can be undefined
 }
 
+// AB#11220 - Change to parse line
 const parseLine = (data: string): Cell[] =>{
     const line : Cell[] = []
     for (let index = 0; index < data.length; index++) {
@@ -62,16 +70,19 @@ const parseLine = (data: string): Cell[] =>{
     return line;
 }
 
-export const parseMap = (data: string[]): Cell[][] =>{
+//
+// export const myPos = {}
+
+export const parseMap = (data: String[]): Cell[][] =>{
     return data.map (parseLine)   
 }
 
-export const getCell = (map: Cell[][], pos: Pos) : Cell| undefined =>{
-    const row = map[pos.y];
-    if (row === undefined){
+export const getTheCell = (map: Cell[][], pos: Pos) : Cell =>{
+    const rowFromTheMap = map[pos.y];
+    if (rowFromTheMap === undefined){
         return undefined
     }
-    return row[pos.x];
+    return row[pos.x] || undefined;
 } 
 
 // Main function to move in the map
@@ -79,7 +90,7 @@ export const move = (map: Cell[][], pos: Pos) : Pos | undefined =>{
     const current = getCell(map, pos);
     current!.visited = true;
     
-    var direction = current!.direction
+    let direction = current!.direction
     var nextPos = Direction.nextPos(direction!, pos);
     var next = getCell(map, nextPos)
     // check if off the map, which means that you have finished
@@ -119,7 +130,7 @@ export const calculateVisitedCells = (map: Cell[][]) : number | undefined =>{
 // Part 2
 export const countObstacles = (data: string[]): number =>{
     const map = parseMap(data);
-    calculateVisitedCells(map)
+    calculateVisited(map)
     
     var visited = map.scan ( cell => cell.visited)
 
@@ -129,21 +140,4 @@ export const countObstacles = (data: string[]): number =>{
         const endResultCount = calculateVisitedCells(newMap)
         return (endResultCount=== undefined)
     }).length;
-}
-
-const printLine = (line : Cell[]) : void =>{
-    var display = "";
-    line.forEach ( it=> {
-        if (it.obstruction) display += "#"
-        else if (it.visited) display += "X"
-        else if (it.direction) display += it.direction
-        else display = display + "."
-    })
-    console.log(display);
-}
-
-// Helper function to print the map
-export const printMap = (map: Cell[][]): void =>{
-   map.forEach ( printLine)
-   console.log("")
 }
