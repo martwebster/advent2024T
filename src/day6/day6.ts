@@ -69,10 +69,10 @@ const parseLine = (data: string): Cell[] =>{
     for (let index = 0; index < data.length; index++) {
         const element = data.charAt(index);
         line.push ({
-          obstruction: element === "#",
-          direction: element === Direction.Up? Direction.Up:undefined,
+          obstruction: element == "#",
+          direction: element == Direction.Up? Direction.Up:undefined,
           visited: false,
-          start: element === Direction.Up? true :false,
+          start: element === Direction.Up? true :false : unknown,
         })
     }
     return line;
@@ -82,7 +82,8 @@ const parseLine = (data: string): Cell[] =>{
 // export const myPos = {}
 
 export const parseMap = (data: String[]): Cell[][] =>{
-    return data.map (parseLine)   
+    const returnVal = data.map (parseLine)   
+    return returnVal;
 }
 
 export const getTheCell = (map: Cell[][], pos: Pos) : Cell =>{
@@ -105,16 +106,16 @@ export const move = (map: Cell[][], pos: Pos) : Pos | undefined =>{
     if (next === undefined){
         current!.direction = undefined
         return undefined
-    }
-    // check if obstruction, then turn, but don't move 
-    if (next.obstruction){
-        nextPos = pos
-        direction = Direction.turn(current!.direction!)
+    } else { 
+       // check if obstruction, then turn, but don't move 
+       if (next.obstruction){
+          nextPos = pos
+          direction = Direction.turn(current!.direction!)
+       }
     }
     current!.direction = undefined
     next = getCell(map, nextPos);
     next!.direction = direction
-
     return nextPos
 } 
 
@@ -133,19 +134,4 @@ export const calculateVisitedCells = (map: Cell[][]) : number | undefined =>{
         }
     }
     return map.flat().filter (it => it.visited).length
-}
-
-// Part 2
-export const countObstacles = (data: string[]): number =>{
-    const map = parseMap(data);
-    calculateVisited(map)
-    
-    var visited = map.scan ( cell => cell.visited)
-
-    return visited.filter( obstPos => {
-        const newMap = parseMap(data);
-        newMap[obstPos.y][obstPos.x].obstruction = true;
-        const endResultCount = calculateVisitedCells(newMap)
-        return (endResultCount=== undefined)
-    }).length;
 }
